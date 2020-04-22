@@ -139,7 +139,6 @@ MapLayer._createArrayIndex = function() {
 						obj.x=i;
 						obj.y=j;
 						this._arrayIndex.push(obj);
-						root.log("This work!")
 		    		}
 		  		}
 			}

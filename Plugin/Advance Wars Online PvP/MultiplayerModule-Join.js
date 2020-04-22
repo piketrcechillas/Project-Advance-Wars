@@ -1,4 +1,7 @@
-TitleCommand.CreateRoom = defineObject(BaseTitleCommand,
+MultiplayerArray = [];
+MultiMax = 0;
+
+TitleCommand.JoinRoom = defineObject(BaseTitleCommand,
 {
 	_transition: null,
 	_straightFlow: null,
@@ -8,22 +11,37 @@ TitleCommand.CreateRoom = defineObject(BaseTitleCommand,
 		this._createSubObject();
 		this.changeCycleMode(NewGameMode.BLACKOUT);
 		this.createHTTPObject();
-		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/create", true);
+		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/requestList", true);
 		this._http.send('');
+		
 		
 	},
 	
 	moveCommand: function() {
-	
+
+		
     	this.connecting = true;
 
-		//root.log(this._http.readyState);
 			if(this._http.readyState == 4){
     			//root.log("Response code: " + this._http.status);
     			//root.log(this._http.responseText)
-    			Eval.setGlobal(this._http.responseText)
+
+    			var string = this._http.responseText.substring(1, this._http.responseText.length-1)
+    			var arr = string.split(',');
+    			for(i = 0; i < arr.length; i++){
+    				//root.log("thisMax: " + MultiMax)
+    				//root.log(parseInt(arr[i]));
+    				if(parseInt(arr[i]) > MultiMax){
+    					MultiMax = parseInt(arr[i])
+    					//root.log("thisMax: " + MultiMax)
+    					MultiplayerArray.push(MultiMax);
+    				}
+
+    			}
     		}
-        	
+
+
+
 		var mode = this.getCycleMode();
 		var result = MoveResult.CONTINUE;
 		
@@ -39,7 +57,7 @@ TitleCommand.CreateRoom = defineObject(BaseTitleCommand,
 
 	getCommandName: function() {
 		if(!this.connecting)
-			return 'Create Room';
+			return 'Join Room';
 		else
 			return 'Connecting...';
 	},
@@ -115,7 +133,7 @@ TitleCommand.CreateRoom = defineObject(BaseTitleCommand,
 	},
 	
 	_pushFlowEntries: function(straightFlow) {
-		straightFlow.pushFlowEntry(MultiplayerCreationFlowEntry);
+		straightFlow.pushFlowEntry(MultiplayerJoinFlowEntry);
 		straightFlow.pushFlowEntry(ClearPointFlowEntry);
 	},
 
@@ -125,32 +143,15 @@ TitleCommand.CreateRoom = defineObject(BaseTitleCommand,
 }
 );
 
-function wait(ms)
-{
-	var d = new Date();
-	var d2 = null;
-	do { d2 = new Date(); }
-	while(d2-d < ms);
-}
 
-var alias1 = TitleScene._configureTitleItem;
-TitleScene._configureTitleItem = function(groupArray) {
-	alias1.call(this, groupArray);
-	
-	groupArray.insertObject(TitleCommand.CreateRoom, 2);
-	groupArray.insertObject(TitleCommand.JoinRoom, 3);
-	
-};
-
-
-var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
+var MultiplayerJoinFlowEntry = defineObject(BaseFlowEntry,
 {
 	_messageAnalyzer: null,
 	_scrollbar: null,
 	_difficultyIndex: 0,
 	_difficultyArray: null,
 	_roomNo: null,
-	_activate: "N",
+	_activate: "Failed",
 	
 	enterFlowEntry: function(newGameCommand) {
 		this._prepareMemberData(newGameCommand);
@@ -163,34 +164,36 @@ var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
 		
 		
 		if (input === ScrollbarInput.SELECT) {
-
-			var id = root.getMetaSession().global.multiplayerID;
+			var pos = this._scrollbar.getIndex();
+			var id = MultiplayerArray[pos];
 			var http = new ActiveXObject("Microsoft.XMLHTTP")
-			http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/checkPlayerJoined?id=" + id);
+			root.log("Current ID: " + id)
+			http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/join?id=" + id);
 			http.send('');
 
-
- 
-    		if(http.readyState == 4){
+			if(http.readyState == 4){
     			root.log(http.responseText)
     			this._activate = http.responseText;
     		}      
     		root.log("Current status: " + this._activate)
-    		if(this._activate == "Y"){
+    		if(this._activate == "Success"){
     			root.log("Passed")	
 				this._startSession(0);
 				return MoveResult.END;	}
 
-
+			else
 				return MoveResult.CONTINUE;
 		}
 
-		
 
-		/*
+		
 		else if (input === ScrollbarInput.NONE) {
 			this._checkIndexAndText();
-		}*/
+		}
+			
+
+		
+
 
 		return MoveResult.CONTINUE;
 	},
@@ -216,7 +219,7 @@ var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
 	},
 	
 	_prepareMemberData: function(newGameCommand) {
-		this._scrollbar = createScrollbarObject(MultiplayerScrollbar, this);
+		this._scrollbar = createScrollbarObject(MultiplayerJoinScrollbar, this);
 		this._createMessageAnalyzer();
 		this._createDifficultyArray();
 	},
@@ -299,9 +302,15 @@ var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
 		if (count > max) {
 			count = max;
 		}
+
+		var roomCount = MultiplayerArray.length;
+
+		if (roomCount > max) {
+			roomCount = max;
+		}
 		
-		this._scrollbar.setScrollFormation(1, 1);
-		this._scrollbar.setObjectArray(this._roomNo);
+		this._scrollbar.setScrollFormation(roomCount, 4);
+		this._scrollbar.setObjectArray(MultiplayerArray);
 		this._scrollbar.setActive(true);
 	},
 	
@@ -328,7 +337,7 @@ var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
 		var id = root.getMetaSession().global.multiplayerID;
 	
 		range = createRangeObject(x - 16, y, this._getWindowWidth(), 23);
-		TextRenderer.drawRangeText(range, TextFormat.CENTER, text + id, -1, color, font);
+		TextRenderer.drawRangeText(range, TextFormat.CENTER, "Join a Room", -1, color, font);
 	},
 	
 	_drawDifficultyArea: function(x, y) {
@@ -363,7 +372,7 @@ var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
 }
 );
 
-var MultiplayerScrollbar = defineObject(BaseScrollbar,
+var MultiplayerJoinScrollbar = defineObject(BaseScrollbar,
 {
 	drawScrollContent: function(x, y, object, isSelect, index) {
 		var range;
@@ -372,7 +381,7 @@ var MultiplayerScrollbar = defineObject(BaseScrollbar,
 		var color = ColorValue.KEYWORD;
 		var font = textui.getFont();
 		
-		range = createRangeObject(x, y + 20, length, this.getObjectHeight());
+		range = createRangeObject(x, y, length, this.getObjectHeight());
 		this._drawRange(range, isSelect, index);
 		TextRenderer.drawRangeText(range, TextFormat.CENTER, object, length, color, font);
 	},
