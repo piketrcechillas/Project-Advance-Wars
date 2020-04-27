@@ -1,0 +1,146 @@
+
+TitleCommand.UploadFile = defineObject(BaseTitleCommand,
+{
+	openCommand: function() {
+		var stream = new ActiveXObject('ADODB.Stream');
+		stream.Type = 1;
+		stream.Open();
+		stream.LoadFromFile("save/save01.sav")
+		var binData = stream.Read();
+		//root.log(binData);
+		//stream.SaveToFile("D:/save02.sav", 2)
+		stream.Close()
+
+		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
+		http.open('POST', "http://localhost:8080/SRPGStudioServer/rest/connect/savefile", false);
+		http.send(binData);
+
+		root.log(http.readyState)
+		if(http.readyState == 4){
+			root.log("Response code: " + http.status);
+			root.log(http.responseText)	
+    	}
+	},
+	
+	getCommandName: function() {
+		return 'Upload Save';
+	},
+
+	moveCommand: function() {
+		// endGame can be called with openCommand, but it sounds as if the sound effect is interrupted.
+		return MoveResult.END;
+	},
+	
+	isSelectable: function() {
+		var fso = new ActiveXObject('Scripting.FileSystemObject')
+   		var pathing = fso.GetFolder('.\\save')
+    	return pathing.Size > 0
+	}
+}
+);
+
+TitleCommand.DownloadFile = defineObject(BaseTitleCommand,
+{
+	openCommand: function() {
+
+		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
+		http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/loadfile", false);
+		http.send();
+		root.log(http.readyState)
+		//stream.LoadFromFile("D:/save01.sav")
+		var stream = new ActiveXObject('ADODB.Stream');
+		stream.Type = 1;
+		
+		if(http.readyState == 4){
+			stream.Open();
+			root.log("Response code: " + http.status);
+			root.log(http.responseBody)	
+			//stream.Write(binData);
+			data = http.responseBody;
+			stream.Write(data);
+			stream.SaveToFile("save/save01.sav", 2)
+			stream.Close();
+			//TitleCommand.Continue.isSelectable()
+		}
+	},
+	
+	getCommandName: function() {
+		return 'Download Save';
+	},
+
+	moveCommand: function() {
+		// endGame can be called with openCommand, but it sounds as if the sound effect is interrupted.
+		return MoveResult.END;
+	},
+	
+	isSelectable: function() {
+		return true;
+	}
+}
+);
+
+var FileUploader = {
+	_file: null,
+	getFile: function() {
+
+	}
+
+}
+
+TitleCommand.Continue.isSelectable = function(){
+    var fso = new ActiveXObject('Scripting.FileSystemObject')
+    var pathing = fso.GetFolder('.\\save')
+    return pathing.Size > 0
+}
+
+TitleCommand.Continue.openCommand = function() {
+    var screenParam = this._createLoadSaveParam();
+    root.getLoadSaveManager().copyFile(99, 99); // <- execute root.getLoadSaveManager() to update. this is meaningless copy.
+    this._loadSaveScreen = createObject(LoadSaveControl.getLoadScreenObject());
+    SceneManager.addScreen(this._loadSaveScreen, screenParam);
+    this._loadSaveScreen._setScrollData(DefineControl.getMaxSaveFileCount(), true);
+};
+
+
+Upload = function() {
+	var stream = new ActiveXObject('ADODB.Stream');
+		stream.Type = 1;
+		stream.Open();
+		stream.LoadFromFile("save/interruption.sav")
+		var binData = stream.Read();
+		//root.log(binData);
+		//stream.SaveToFile("D:/save02.sav", 2)
+		stream.Close()
+
+		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
+		http.open('POST', "http://localhost:8080/SRPGStudioServer/rest/connect/save", false);
+		http.send(binData);
+
+		root.log(http.readyState)
+		if(http.readyState == 4){
+			root.log("Response code: " + http.status);
+			root.log(http.responseText)	
+    	}
+}
+
+Download = function() {
+		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
+		http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/load", false);
+		http.send();
+		root.log(http.readyState)
+		//stream.LoadFromFile("D:/save01.sav")
+		var stream = new ActiveXObject('ADODB.Stream');
+		stream.Type = 1;
+		
+		if(http.readyState == 4){
+			stream.Open();
+			root.log("Response code: " + http.status);
+			root.log(http.responseBody)	
+			//stream.Write(binData);
+			data = http.responseBody;
+			stream.Write(data);
+			stream.SaveToFile("save/interruption.sav", 2)
+			stream.Close();
+			//TitleCommand.Continue.isSelectable()
+		}
+}

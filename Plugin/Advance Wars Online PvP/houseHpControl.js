@@ -105,7 +105,12 @@ var Eval = {
 
 	setGlobal: function(id) {
 		eval('root.getMetaSession().global.multiplayerID' + '=' + id);
+	},
+
+	setID: function(id) {
+		eval('root.getMetaSession().global.playerID' + '=' + id);
 	}
+
 
 }
 

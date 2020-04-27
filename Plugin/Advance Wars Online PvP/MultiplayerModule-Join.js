@@ -11,7 +11,7 @@ TitleCommand.JoinRoom = defineObject(BaseTitleCommand,
 		this._createSubObject();
 		this.changeCycleMode(NewGameMode.BLACKOUT);
 		this.createHTTPObject();
-		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/requestList", true);
+		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/requestList", false);
 		this._http.send('');
 		
 		
@@ -138,7 +138,7 @@ TitleCommand.JoinRoom = defineObject(BaseTitleCommand,
 	},
 
 	createHTTPObject: function() {
-		this._http = new ActiveXObject("Microsoft.XMLHTTP");
+		this._http = new ActiveXObject("Msxml2.XMLHTTP.6.0");
 	}
 }
 );
@@ -166,9 +166,9 @@ var MultiplayerJoinFlowEntry = defineObject(BaseFlowEntry,
 		if (input === ScrollbarInput.SELECT) {
 			var pos = this._scrollbar.getIndex();
 			var id = MultiplayerArray[pos];
-			var http = new ActiveXObject("Microsoft.XMLHTTP")
+			var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
 			root.log("Current ID: " + id)
-			http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/join?id=" + id);
+			http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/join?id=" + id, false);
 			http.send('');
 
 			if(http.readyState == 4){
@@ -179,6 +179,7 @@ var MultiplayerJoinFlowEntry = defineObject(BaseFlowEntry,
     		if(this._activate == "Success"){
     			root.log("Passed")	
 				this._startSession(0);
+				Eval.setID(1);
 				return MoveResult.END;	}
 
 			else

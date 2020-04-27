@@ -8,7 +8,7 @@ TitleCommand.CreateRoom = defineObject(BaseTitleCommand,
 		this._createSubObject();
 		this.changeCycleMode(NewGameMode.BLACKOUT);
 		this.createHTTPObject();
-		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/create", true);
+		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/create", false);
 		this._http.send('');
 		
 	},
@@ -120,7 +120,7 @@ TitleCommand.CreateRoom = defineObject(BaseTitleCommand,
 	},
 
 	createHTTPObject: function() {
-		this._http = new ActiveXObject("Microsoft.XMLHTTP");
+		this._http = new ActiveXObject("Msxml2.XMLHTTP.6.0");
 	}
 }
 );
@@ -139,6 +139,8 @@ TitleScene._configureTitleItem = function(groupArray) {
 	
 	groupArray.insertObject(TitleCommand.CreateRoom, 2);
 	groupArray.insertObject(TitleCommand.JoinRoom, 3);
+	groupArray.insertObject(TitleCommand.UploadFile, 4);
+	groupArray.insertObject(TitleCommand.DownloadFile, 5);
 	
 };
 
@@ -165,8 +167,8 @@ var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
 		if (input === ScrollbarInput.SELECT) {
 
 			var id = root.getMetaSession().global.multiplayerID;
-			var http = new ActiveXObject("Microsoft.XMLHTTP")
-			http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/checkPlayerJoined?id=" + id);
+			var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
+			http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/checkPlayerJoined?id=" + id, false);
 			http.send('');
 
 
@@ -179,6 +181,7 @@ var MultiplayerCreationFlowEntry = defineObject(BaseFlowEntry,
     		if(this._activate == "Y"){
     			root.log("Passed")	
 				this._startSession(0);
+				Eval.setID(0);
 				return MoveResult.END;	}
 
 
