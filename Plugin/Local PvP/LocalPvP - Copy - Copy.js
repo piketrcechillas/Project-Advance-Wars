@@ -1,6 +1,6 @@
 UnitFilterFlag.PLAYER2 = 0x08;
 UnitType.PLAYER2 = 3;
-TurnType.DUMMY = 4;
+TurnType.PLAYER2 = 3;
 
 
 BaseCombinationCollector._arrangeFilter = function(unit, filter) {
@@ -76,6 +76,10 @@ BaseTurnLogoFlowEntry._isTurnGraphicsDisplayable = function() {
 		return count > 0;
 	}
 
+TurnChangeEnd.doLastAction = function() {
+	
+	this._startNextTurn();
+	}
 
 
 TurnChangeEnd._startNextTurn = function() {
@@ -99,7 +103,7 @@ TurnChangeEnd._startNextTurn = function() {
 	}
 	else {
 		if (turnType === TurnType.PLAYER) {
-		
+			
 
 			var session = root.getMetaSession();
 			var income = session.getVariableTable(1).getVariable(1);
@@ -108,13 +112,14 @@ TurnChangeEnd._startNextTurn = function() {
 			root.log("Income: " + income);
 
 			session.setGold(pastGold + income);
-				//nextTurnType = TurnType.PLAYER2;
-				root.getLoadSaveManager().saveInterruptionFile(SceneType.FREE, root.getCurrentSession().getCurrentMapInfo().getId(), LoadSaveScreen._getCustomObject());
-				Upload();
-				wait(200);
-				nextTurnType = TurnType.DUMMY;
+
+			
+
+			nextTurnType = TurnType.PLAYER2;
+
 			}
 		else if (turnType === TurnType.PLAYER2) {
+
 
 			var session = root.getMetaSession();
 			var income = session.getVariableTable(1).getVariable(0);
@@ -123,35 +128,22 @@ TurnChangeEnd._startNextTurn = function() {
 			root.log("Income: " + income);
 
 			session.setGold(pastGold + income);
-
-			root.getLoadSaveManager().saveInterruptionFile(SceneType.FREE, root.getCurrentSession().getCurrentMapInfo().getId(), LoadSaveScreen._getCustomObject());
-				Upload();
-				wait(200);
-			nextTurnType = TurnType.DUMMY;
-
-		}
-		else if (turnType === TurnType.DUMMY) {
-			if(root.getMetaSession().global.playerID==0){
-				Download();
-				root.getLoadSaveManager().loadInterruptionFile();
-				nextTurnType = TurnType.PLAYER;
-			}
-			if(root.getMetaSession().global.playerID==1){
-				Download();
-				root.getLoadSaveManager().loadInterruptionFile();
-				nextTurnType = TurnType.PLAYER2;
-			}
+			
+			nextTurnType = TurnType.PLAYER;
 		}
 	}
-	
+
+	//Download();
+	//root.getLoadSaveManager().loadInterruptionFile();
 	root.log(nextTurnType);
 	root.getCurrentSession().setTurnType(nextTurnType);
+	
 }
 
 TurnChangeMapStart.doLastAction = function() {
 		var turnType = TurnType.PLAYER;
 		
-		if (PlayerList.getSortieList().getCount() > 0) {
+		if (root.getMetaSession().getVariableTable(4).getVariable(0) == 0) {
 			var session = root.getMetaSession();
 			var income = session.getVariableTable(1).getVariable(0);
 			var pastGold = session.getVariableTable(0).getVariable(0);
@@ -162,14 +154,10 @@ TurnChangeMapStart.doLastAction = function() {
 			turnType = TurnType.PLAYER;
 
 		}
-		else if (EnemyList.getAliveList().getCount() > 0) {
-			//turnType = TurnType.ENEMY;
-			turnType = TurnType.DUMMY;
+		else if (root.getMetaSession().getVariableTable(4).getVariable(0) == 1) {
+			turnType = TurnType.PLAYER;
 		}
-		else if (AllyList.getAliveList().getCount() > 0) {
-			turnType = TurnType.ALLY;
-		}
-		
+
 		root.getCurrentSession().setTurnCount(0);
 		root.getCurrentSession().setTurnType(turnType);
 	}
@@ -216,13 +204,13 @@ TurnControl.getActorList = function() {
     if (turnType === TurnType.PLAYER) {
         list = PlayerList.getSortieList();
     }
-    else if (turnType === TurnType.ENEMY ) {
+    else if (turnType === TurnType.ENEMY) {
         list = FactionControl.getEnemyList();
     }
     else if (turnType === TurnType.ALLY) {
         list = AllyList.getAliveList();
     }
-    else if (turnType == TurnType.PLAYER2 || turnType == TurnType.DUMMY) {
+    else if (turnType == TurnType.PLAYER2) {
         list = FactionControl.getPlayer2List();
     }
     
@@ -231,7 +219,6 @@ TurnControl.getActorList = function() {
 
 
 FreeAreaScene._player2TurnObject = null;
-FreeAreaScene._dummyObject = null;
 
 FreeAreaScene.getTurnObject = function() {
         var obj = null;
@@ -249,10 +236,6 @@ FreeAreaScene.getTurnObject = function() {
         else if (type === TurnType.PLAYER2) {
             obj = this._player2TurnObject;
         }
-
-        else if (type === TurnType.DUMMY) {
-            obj = this._dummyObject;
-        }
         
         return obj;
     }
@@ -266,7 +249,6 @@ FreeAreaScene._prepareSceneMemberData = function() {
 		this._playerTurnObject = createObject(PlayerTurn);
 		if(isMulti)	
 			this._player2TurnObject = createObject(PlayerTurn2);
-		this._dummyObject = createObject(DummyTurn)
 		this._enemyTurnObject = createObject(EnemyTurn);
 		this._partnerTurnObject = createObject(EnemyTurn);
 	}
@@ -354,14 +336,46 @@ FactionControl = {
 
 }
 
-TurnChangeMapStart.doLastAction = function() {
+var StatusChecker = defineObject(BaseObject, {
+	_http: null,
 
-		if(root.getMetaSession().global.playerID == 0)
-			var turnType = TurnType.PLAYER;
-		if(root.getMetaSession().global.playerID == 1)
-			var turnType = TurnType.DUMMY;
-		
+	getStatus: function() {
+		var id = root.getMetaSession().getVariableTable(4).getVariable(1);
+		this.createHTTPObject();
+		this._http.open('POST', "https://srpgstudioserver.azurewebsites.net/rest/connect/checkStatus?id="+id, false);
+		root.log("CurrentID: " + root.getMetaSession().getVariableTable(4).getVariable(1))
+		this._http.send();
 
-		root.getCurrentSession().setTurnCount(0);
-		root.getCurrentSession().setTurnType(turnType);
+		if(this._http.readyState == 4){
+			var result = this._http.responseText;
+			root.log("Current Turn:" + this._http.responseText)
+			if(result == root.getMetaSession().getVariableTable(4).getVariable(0)) 
+			{		
+					this._http.abort();
+					return true;
+				}	
+
+			}
+		this._http.abort();
+		return false;
+	},
+
+
+	createHTTPObject: function() {
+		this._http = new ActiveXObject("Msxml2.XMLHTTP.6.0");
+	}
+
+})
+
+
+MapCommand.TurnEnd.openCommand = function() {
+
+
+		root.getLoadSaveManager().saveInterruptionFile(SceneType.FREE, root.getCurrentSession().getCurrentMapInfo().getId(), LoadSaveScreen._getCustomObject());
+		Upload();
+		root.log("Uploaded")
+		if (root.getBaseScene() === SceneType.FREE) {
+			this._saveCursor();
+		}
+		TurnControl.turnEnd();
 	}

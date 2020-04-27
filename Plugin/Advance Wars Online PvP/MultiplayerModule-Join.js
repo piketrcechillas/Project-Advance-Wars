@@ -11,7 +11,7 @@ TitleCommand.JoinRoom = defineObject(BaseTitleCommand,
 		this._createSubObject();
 		this.changeCycleMode(NewGameMode.BLACKOUT);
 		this.createHTTPObject();
-		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/requestList", false);
+		this._http.open('GET', "https://srpgstudioserver.azurewebsites.net/rest/connect/requestList", false);
 		this._http.send('');
 		
 		
@@ -168,7 +168,7 @@ var MultiplayerJoinFlowEntry = defineObject(BaseFlowEntry,
 			var id = MultiplayerArray[pos];
 			var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
 			root.log("Current ID: " + id)
-			http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/join?id=" + id, false);
+			http.open('GET', "https://srpgstudioserver.azurewebsites.net/rest/connect/join?id=" + id, false);
 			http.send('');
 
 			if(http.readyState == 4){
@@ -179,7 +179,9 @@ var MultiplayerJoinFlowEntry = defineObject(BaseFlowEntry,
     		if(this._activate == "Success"){
     			root.log("Passed")	
 				this._startSession(0);
-				Eval.setID(1);
+				root.getMetaSession().getVariableTable(4).setVariable(1, id);
+				root.getMetaSession().getVariableTable(4).setVariable(0, 1);
+				root.log("Current Player ID: " + root.getMetaSession().getVariableTable(4).getVariable(0))	
 				return MoveResult.END;	}
 
 			else

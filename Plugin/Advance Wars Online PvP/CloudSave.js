@@ -12,7 +12,7 @@ TitleCommand.UploadFile = defineObject(BaseTitleCommand,
 		stream.Close()
 
 		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
-		http.open('POST', "http://localhost:8080/SRPGStudioServer/rest/connect/savefile", false);
+		http.open('POST', "https://srpgstudioserver.azurewebsites.net/rest/connect/savefile", false);
 		http.send(binData);
 
 		root.log(http.readyState)
@@ -44,7 +44,7 @@ TitleCommand.DownloadFile = defineObject(BaseTitleCommand,
 	openCommand: function() {
 
 		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
-		http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/loadfile", false);
+		http.open('GET', "https://srpgstudioserver.azurewebsites.net/rest/connect/loadfile", false);
 		http.send();
 		root.log(http.readyState)
 		//stream.LoadFromFile("D:/save01.sav")
@@ -103,7 +103,8 @@ TitleCommand.Continue.openCommand = function() {
 
 
 Upload = function() {
-	var stream = new ActiveXObject('ADODB.Stream');
+		var id = root.getMetaSession().getVariableTable(4).getVariable(1)
+		var stream = new ActiveXObject('ADODB.Stream');
 		stream.Type = 1;
 		stream.Open();
 		stream.LoadFromFile("save/interruption.sav")
@@ -113,19 +114,21 @@ Upload = function() {
 		stream.Close()
 
 		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
-		http.open('POST', "http://localhost:8080/SRPGStudioServer/rest/connect/save", false);
+		http.open('POST', "https://srpgstudioserver.azurewebsites.net/rest/connect/save?id=" + id, false);
 		http.send(binData);
 
 		root.log(http.readyState)
 		if(http.readyState == 4){
 			root.log("Response code: " + http.status);
 			root.log(http.responseText)	
+			http.abort();
     	}
 }
 
 Download = function() {
+		var id = root.getMetaSession().getVariableTable(4).getVariable(1)
 		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
-		http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/load", false);
+		http.open('POST', "https://srpgstudioserver.azurewebsites.net/rest/connect/load?id=" + id, false);
 		http.send();
 		root.log(http.readyState)
 		//stream.LoadFromFile("D:/save01.sav")
@@ -142,5 +145,6 @@ Download = function() {
 			stream.SaveToFile("save/interruption.sav", 2)
 			stream.Close();
 			//TitleCommand.Continue.isSelectable()
+			http.abort();
 		}
 }

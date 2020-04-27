@@ -1,6 +1,7 @@
 UnitFilterFlag.PLAYER2 = 0x08;
 UnitType.PLAYER2 = 3;
 TurnType.PLAYER2 = 3;
+TurnType.DUMMY = 4;
 
 
 BaseCombinationCollector._arrangeFilter = function(unit, filter) {
@@ -99,7 +100,6 @@ TurnChangeEnd._startNextTurn = function() {
 	}
 	else {
 		if (turnType === TurnType.PLAYER) {
-			nextTurnType = TurnType.PLAYER2;
 
 			var session = root.getMetaSession();
 			var income = session.getVariableTable(1).getVariable(1);
@@ -108,6 +108,13 @@ TurnChangeEnd._startNextTurn = function() {
 			root.log("Income: " + income);
 
 			session.setGold(pastGold + income);
+
+			root.getLoadSaveManager().saveInterruptionFile(SceneType.FREE, root.getCurrentSession().getCurrentMapInfo().getId(), LoadSaveScreen._getCustomObject());
+			Upload();
+			wait(500);
+			root.log("Current Player ID: " + root.getMetaSession().getVariableTable(4).getVariable(0))
+			nextTurnType = TurnType.DUMMY;
+
 			}
 		else if (turnType === TurnType.PLAYER2) {
 
@@ -119,7 +126,28 @@ TurnChangeEnd._startNextTurn = function() {
 
 			session.setGold(pastGold + income);
 
-			nextTurnType = TurnType.PLAYER;
+			root.getLoadSaveManager().saveInterruptionFile(SceneType.FREE, root.getCurrentSession().getCurrentMapInfo().getId(), LoadSaveScreen._getCustomObject());
+			Upload();
+			wait(500);
+			root.log("Current Player ID: " + root.getMetaSession().getVariableTable(4).getVariable(0))
+			nextTurnType = TurnType.DUMMY;
+
+		}
+
+
+		else if (turnType === TurnType.DUMMY) {
+			if(root.getMetaSession().getVariableTable(4).getVariable(0)==0){
+				Download();
+				root.getLoadSaveManager().loadInterruptionFile();
+				root.log("Forward to Player Turn")
+				nextTurnType = TurnType.PLAYER;
+			}
+			if(root.getMetaSession().getVariableTable(4).getVariable(0)==1){
+				Download();
+				root.getLoadSaveManager().loadInterruptionFile();	
+				root.log("Forward to Player 2 Turn")	
+				nextTurnType = TurnType.PLAYER2;
+			}
 		}
 	}
 	
@@ -130,7 +158,12 @@ TurnChangeEnd._startNextTurn = function() {
 TurnChangeMapStart.doLastAction = function() {
 		var turnType = TurnType.PLAYER;
 		
-		if (PlayerList.getSortieList().getCount() > 0) {
+		if (root.getMetaSession().getVariableTable(4).getVariable(0)==1) {
+
+			turnType = TurnType.DUMMY;
+		}
+		
+		if (root.getMetaSession().getVariableTable(4).getVariable(0)==0) {
 			var session = root.getMetaSession();
 			var income = session.getVariableTable(1).getVariable(0);
 			var pastGold = session.getVariableTable(0).getVariable(0);
@@ -139,13 +172,6 @@ TurnChangeMapStart.doLastAction = function() {
 
 			session.setGold(pastGold + income);
 			turnType = TurnType.PLAYER;
-
-		}
-		else if (EnemyList.getAliveList().getCount() > 0) {
-			turnType = TurnType.ENEMY;
-		}
-		else if (AllyList.getAliveList().getCount() > 0) {
-			turnType = TurnType.ALLY;
 		}
 		
 		root.getCurrentSession().setTurnCount(0);
@@ -203,6 +229,10 @@ TurnControl.getActorList = function() {
     else if (turnType == TurnType.PLAYER2) {
         list = FactionControl.getPlayer2List();
     }
+
+     else if (turnType == TurnType.DUMMY) {
+        list = PlayerList.getSortieList();
+    }
     
     return list;
 }
@@ -226,7 +256,9 @@ FreeAreaScene.getTurnObject = function() {
         else if (type === TurnType.PLAYER2) {
             obj = this._player2TurnObject;
         }
-        
+          else if (type === TurnType.DUMMY) {
+            obj = this._dummyObject;
+        }
         return obj;
     }
 
@@ -237,8 +269,10 @@ FreeAreaScene._prepareSceneMemberData = function() {
 		this._turnChangeStart = createObject(TurnChangeStart);
 		this._turnChangeEnd = createObject(TurnChangeEnd);
 		this._playerTurnObject = createObject(PlayerTurn);
-		if(isMulti)	
+		if(isMulti)	{
 			this._player2TurnObject = createObject(PlayerTurn2);
+			this._dummyObject = createObject(DummyTurn)
+		}
 		this._enemyTurnObject = createObject(EnemyTurn);
 		this._partnerTurnObject = createObject(EnemyTurn);
 	}

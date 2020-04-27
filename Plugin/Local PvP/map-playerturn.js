@@ -1,5 +1,5 @@
 
-var PlayerTurn2Mode = {
+var PlayerTurnMode = {
 	AUTOCURSOR: 0,
 	AUTOEVENTCHECK: 1,
 	MAP: 2,
@@ -10,7 +10,8 @@ var PlayerTurn2Mode = {
 	BOUNCETWO: 7,
 	PROCEED: 8
 };
-var PlayerTurn2 = defineObject(BaseTurn,
+
+var PlayerTurn = defineObject(BaseTurn,
 {
 	_targetUnit: null,
 	_xCursorSave: 0,
@@ -27,11 +28,12 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	
 	// It's called if the turn is switched.
 	openTurnCycle: function() {
-		if(root.getMetaSession().getVariableTable(4).getVariable(0)==1){
+		if(root.getMetaSession().getVariableTable(4).getVariable(0)==0){
 			this._prepareTurnMemberData();
-			this._completeTurnMemberData();}
+			this._completeTurnMemberData();
+			}
 		else{
-			this.changeCycleMode(PlayerTurn2Mode.BOUNCEONE);
+			this.changeCycleMode(PlayerTurnMode.BOUNCEONE);
 		}
 	},
 	
@@ -43,35 +45,39 @@ var PlayerTurn2 = defineObject(BaseTurn,
 			return MoveResult.CONTINUE;
 		}
 		
-		if (mode === PlayerTurn2Mode.AUTOCURSOR) {
+		if (mode === PlayerTurnMode.AUTOCURSOR) {
 			result = this._moveAutoCursor();
 		}
-		else if (mode === PlayerTurn2Mode.AUTOEVENTCHECK) {
+		else if (mode === PlayerTurnMode.AUTOEVENTCHECK) {
 			result = this._moveAutoEventCheck();
 		}
-		else if (mode === PlayerTurn2Mode.MAP) {
+		else if (mode === PlayerTurnMode.MAP) {
 			result = this._moveMap();
 		}
-		else if (mode === PlayerTurn2Mode.AREA) {
+		else if (mode === PlayerTurnMode.AREA) {
 			result = this._moveArea();
 		}
-		else if (mode === PlayerTurn2Mode.MAPCOMMAND) {
+		else if (mode === PlayerTurnMode.MAPCOMMAND) {
 			result = this._moveMapCommand();
 		}
-		else if (mode === PlayerTurn2Mode.UNITCOMMAND) {
+		else if (mode === PlayerTurnMode.UNITCOMMAND) {
 			result = this._moveUnitCommand();
 		}
 
-		else if (mode === PlayerTurn2Mode.BOUNCEONE) {
+		else if (mode === PlayerTurnMode.BOUNCEONE) {
 			
 			result = MoveResult.CONTINUE;
 		}
 
-		else if (mode === PlayerTurn2Mode.BOUNCETWO) {
+		else if (mode === PlayerTurnMode.BOUNCETWO) {
 			
 			result = MoveResult.CONTINUE;
 		}
 
+		
+			//wait(200)
+			
+		
 		
 		if (this._checkAutoTurnEnd()) {
 			return MoveResult.CONTINUE;
@@ -83,62 +89,60 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	drawTurnCycle: function() {
 		var mode = this.getCycleMode();
 		
-		if (mode === PlayerTurn2Mode.AUTOCURSOR) {
+		if (mode === PlayerTurnMode.AUTOCURSOR) {
 			this._drawAutoCursor();
 		}
-		else if (mode === PlayerTurn2Mode.AUTOEVENTCHECK) {
+		else if (mode === PlayerTurnMode.AUTOEVENTCHECK) {
 			this._drawAutoEventCheck();
 		}
-		else if (mode === PlayerTurn2Mode.MAP) {
+		else if (mode === PlayerTurnMode.MAP) {
 			this._drawMap();	
 		}
-		else if (mode === PlayerTurn2Mode.AREA) {
+		else if (mode === PlayerTurnMode.AREA) {
 			this._drawArea();	
 		}
-		else if (mode === PlayerTurn2Mode.MAPCOMMAND) {
+		else if (mode === PlayerTurnMode.MAPCOMMAND) {
 			this._drawMapCommand();
 		}
-		else if (mode === PlayerTurn2Mode.UNITCOMMAND) {
+		else if (mode === PlayerTurnMode.UNITCOMMAND) {
 			this._drawUnitCommand();
 		}
-		else if (mode === PlayerTurn2Mode.BOUNCEONE) {
+		else if (mode === PlayerTurnMode.BOUNCEONE) {
 			var http = createObject(StatusChecker);
 			var res = http.getStatus();
-			root.log(res);
 			if(res){
-				this.changeCycleMode(PlayerTurn2Mode.PROCEED);
+				this.changeCycleMode(PlayerTurnMode.PROCEED);
 			}
 			else{
 				root.log("Bounce forth")
-				this.changeCycleMode(PlayerTurn2Mode.BOUNCETWO);
+				this.changeCycleMode(PlayerTurnMode.BOUNCETWO);
 			}
 			this.drawNoticeView(270, 200);			
 		}
-		else if (mode === PlayerTurn2Mode.BOUNCETWO) {
+		else if (mode === PlayerTurnMode.BOUNCETWO) {
 			var http = createObject(StatusChecker);
 			var res = http.getStatus();
 			if(res){
-				this.changeCycleMode(PlayerTurn2Mode.PROCEED);
+				this.changeCycleMode(PlayerTurnMode.PROCEED);
 			}
 			else{
 				root.log("Bounce back")
-				this.changeCycleMode(PlayerTurn2Mode.BOUNCEONE);
+				this.changeCycleMode(PlayerTurnMode.BOUNCEONE);
 			}
 			this.drawNoticeView(270, 200);			
 		}
 
 
-		else if (mode === PlayerTurn2Mode.PROCEED) {
+		else if (mode === PlayerTurnMode.PROCEED) {
 			Download();
-			root.log("Downloaded")
 			root.getLoadSaveManager().loadInterruptionFile();
-			root.getMetaSession().getVariableTable(4).setVariable(0, 0);
+			root.getMetaSession().getVariableTable(4).setVariable(0, 1);
 			root.log("Player Side: " + root.getMetaSession().getVariableTable(4).getVariable(0));
-			root.getCurrentSession().setTurnType(TurnType.PLAYER2)
+			root.getCurrentSession().setTurnType(TurnType.PLAYER)
 			TurnControl.turnEnd();
-		}
+			}
 	},
-	
+
 	drawNoticeView: function(x, y) {
 		var textui = root.queryTextUI('support_title');
 		var pic = textui.getUIImage();
@@ -159,7 +163,6 @@ var PlayerTurn2 = defineObject(BaseTurn,
 		TextRenderer.drawKeywordText(x, y, text, -1, infoColor, font);
 	},
 
-	
 	isPlayerActioned: function() {
 		return this._isPlayerActioned;
 	},
@@ -173,7 +176,7 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	},
 	
 	isDebugMouseActionAllowed: function() {
-		return this.getCycleMode() === PlayerTurn2Mode.MAP;
+		return this.getCycleMode() === PlayerTurnMode.MAP;
 	},
 	
 	setCursorSave: function(unit) {
@@ -226,13 +229,11 @@ var PlayerTurn2 = defineObject(BaseTurn,
 		this._xCursorSave = 0;
 		this._yCursorSave = 0;
 		this._isPlayerActioned = false;
-
-
-
+		
 		this._mapLineScroll = createObject(MapLineScroll);
 		this._mapEdit = createObject(MapEdit);
-		this._mapSequenceArea = createObject(MapSequenceArea2);
-		this._mapSequenceCommand = createObject(MapSequenceCommand2);
+		this._mapSequenceArea = createObject(MapSequenceArea);
+		this._mapSequenceCommand = createObject(MapSequenceCommand);
 		this._mapCommandManager = createObject(MapCommand);
 		this._eventChecker = createObject(EventChecker);
 		
@@ -254,6 +255,7 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	
 	_moveAutoCursor: function() {
 		var x, y, pos;
+		
 		if (this._mapLineScroll.moveLineScroll() !== MoveResult.CONTINUE) {
 			pos = this._getDefaultCursorPos();
 			if (pos !== null && EnvironmentControl.isAutoCursor()) {
@@ -275,7 +277,7 @@ var PlayerTurn2 = defineObject(BaseTurn,
 		if (this._eventChecker.moveEventChecker() !== MoveResult.CONTINUE) {
 			this._doEventEndAction();
 			MapLayer.getMarkingPanel().updateMarkingPanel();
-			this.changeCycleMode(PlayerTurn2Mode.MAP);
+			this.changeCycleMode(PlayerTurnMode.MAP);
 		}
 		
 		return MoveResult.CONTINUE;
@@ -292,18 +294,18 @@ var PlayerTurn2 = defineObject(BaseTurn,
 					
 					// Pressing the decision key on the unit who waits is treated as a map command.
 					this._mapCommandManager.openListCommandManager();
-					this.changeCycleMode(PlayerTurn2Mode.MAPCOMMAND);
+					this.changeCycleMode(PlayerTurnMode.MAPCOMMAND);
 				}
 				else {
 					// Change it to the mode which displaying the unit moving range.
 					this._mapSequenceArea.openSequence(this);
-					this.changeCycleMode(PlayerTurn2Mode.AREA);
+					this.changeCycleMode(PlayerTurnMode.AREA);
 				}
 			}
 		}
 		else if (result === MapEditResult.MAPCHIPSELECT) {
 			this._mapCommandManager.openListCommandManager();
-			this.changeCycleMode(PlayerTurn2Mode.MAPCOMMAND);
+			this.changeCycleMode(PlayerTurnMode.MAPCOMMAND);
 		}
 		
 		return MoveResult.CONTINUE;
@@ -312,13 +314,13 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	_moveArea: function() {
 		var result = this._mapSequenceArea.moveSequence();
 		
-		if (result === MapSequenceAreaResult2.COMPLETE) {
+		if (result === MapSequenceAreaResult.COMPLETE) {
 			this._mapEdit.clearRange();
 			this._mapSequenceCommand.openSequence(this);
-			this.changeCycleMode(PlayerTurn2Mode.UNITCOMMAND);
+			this.changeCycleMode(PlayerTurnMode.UNITCOMMAND);
 		}
-		else if (result === MapSequenceAreaResult2.CANCEL) {
-			this.changeCycleMode(PlayerTurn2Mode.MAP);
+		else if (result === MapSequenceAreaResult.CANCEL) {
+			this.changeCycleMode(PlayerTurnMode.MAP);
 		}
 		
 		return MoveResult.CONTINUE;
@@ -336,14 +338,14 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	_moveUnitCommand: function() {
 		var result = this._mapSequenceCommand.moveSequence();
 		
-		if (result === MapSequenceCommandResult2.COMPLETE) {
+		if (result === MapSequenceCommandResult.COMPLETE) {
 			this._mapSequenceCommand.resetCommandManager();
 			MapLayer.getMarkingPanel().updateMarkingPanelFromUnit(this._targetUnit);
 			this._changeEventMode();
 		}
-		else if (result === MapSequenceCommandResult2.CANCEL) {
+		else if (result === MapSequenceCommandResult.CANCEL) {
 			this._mapSequenceCommand.resetCommandManager();
-			this.changeCycleMode(PlayerTurn2Mode.MAP);
+			this.changeCycleMode(PlayerTurnMode.MAP);
 		}
 		
 		return MoveResult.CONTINUE;
@@ -382,12 +384,12 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	_checkAutoTurnEnd: function() {
 		var i, unit;
 		var isTurnEnd = true;
-		var list = FactionControl.getPlayer2List();
+		var list = PlayerList.getSortieList();
 		var count = list.getCount();
 		
 		// Don't let the turn change occur at the same time when selecting the auto turn end on the config screen.
 		// There is also an intention that doesn't let the turn end at the same time when the alive is 0 at the battle.
-		if (this.getCycleMode() !== PlayerTurn2Mode.MAP) {
+		if (this.getCycleMode() !== PlayerTurnMode.MAP) {
 			return false;
 		}
 		
@@ -423,7 +425,7 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	},
 	
 	_setDefaultActiveUnit: function() {
-		var unit = FactionControl.getPlayer2List().getData(0);
+		var unit = PlayerList.getAliveList().getData(0);
 		
 		// If beaten with the turn damage, set null at the unit.
 		if (unit !== null) {
@@ -434,7 +436,7 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	_getDefaultCursorPos: function() {
 		var i, unit;
 		var targetUnit = null;
-		var list = FactionControl.getPlayer2List();
+		var list = PlayerList.getSortieList();
 		var count = list.getCount();
 		
 		for (i = 0; i < count; i++) {
@@ -470,7 +472,7 @@ var PlayerTurn2 = defineObject(BaseTurn,
 		}
 		
 		this._mapLineScroll.startLineScroll(x, y);
-		this.changeCycleMode(PlayerTurn2Mode.AUTOCURSOR);
+		this.changeCycleMode(PlayerTurnMode.AUTOCURSOR);
 	},
 	
 	_changeEventMode: function() {
@@ -479,10 +481,10 @@ var PlayerTurn2 = defineObject(BaseTurn,
 		result = this._eventChecker.enterEventChecker(root.getCurrentSession().getAutoEventList(), EventType.AUTO);
 		if (result === EnterResult.NOTENTER) {
 			this._doEventEndAction();
-			this.changeCycleMode(PlayerTurn2Mode.MAP);
+			this.changeCycleMode(PlayerTurnMode.MAP);
 		}
 		else {
-			this.changeCycleMode(PlayerTurn2Mode.AUTOEVENTCHECK);
+			this.changeCycleMode(PlayerTurnMode.AUTOEVENTCHECK);
 		}
 	},
 	
@@ -501,18 +503,18 @@ var PlayerTurn2 = defineObject(BaseTurn,
 }
 );
 
-var MapSequenceAreaMode2 = {
+var MapSequenceAreaMode = {
 	AREA: 0,
 	MOVING: 1
 };
 
-var MapSequenceAreaResult2 = {
+var MapSequenceAreaResult = {
 	COMPLETE: 0,
 	CANCEL: 1,
 	NONE: 2
 };
 
-var MapSequenceArea2 = defineObject(BaseObject,
+var MapSequenceArea = defineObject(BaseObject,
 {
 	_parentTurnObject: null,
 	_targetUnit: null,
@@ -529,12 +531,12 @@ var MapSequenceArea2 = defineObject(BaseObject,
 	
 	moveSequence: function() {
 		var mode = this.getCycleMode();
-		var result = MapSequenceAreaResult2.NONE;
+		var result = MapSequenceAreaResult.NONE;
 		
-		if (mode === MapSequenceAreaMode2.AREA) {
+		if (mode === MapSequenceAreaMode.AREA) {
 			result = this._moveArea();
 		}
-		else if (mode === MapSequenceAreaMode2.MOVING) {
+		else if (mode === MapSequenceAreaMode.MOVING) {
 			result = this._moveMoving();
 		}
 		
@@ -544,10 +546,10 @@ var MapSequenceArea2 = defineObject(BaseObject,
 	drawSequence: function() {
 		var mode = this.getCycleMode();
 		
-		if (mode === MapSequenceAreaMode2.AREA) {
+		if (mode === MapSequenceAreaMode.AREA) {
 			this._drawArea();
 		}
-		else if (mode === MapSequenceAreaMode2.MOVING) {
+		else if (mode === MapSequenceAreaMode.MOVING) {
 			this._drawMoving();
 		}
 	},
@@ -578,14 +580,14 @@ var MapSequenceArea2 = defineObject(BaseObject,
 		
 		this._playMapUnitSelectSound();
 		
-		this.changeCycleMode(MapSequenceAreaMode2.AREA);
+		this.changeCycleMode(MapSequenceAreaMode.AREA);
 	},
 	
 	_moveArea: function() {
 		var unit;
 		var isMove = false;
 		var isCancel = false;
-		var result = MapSequenceAreaResult2.NONE;
+		var result = MapSequenceAreaResult.NONE;
 		
 		if (InputControl.isSelectAction()) {
 			// Check if it's fine whether the _targetUnit moves.
@@ -615,26 +617,26 @@ var MapSequenceArea2 = defineObject(BaseObject,
 			// Check if it's fine whether move to the position where a cursor points.
 			if (this._isPlaceSelectable()) {
 				if (this._startMove()) {
-					result = MapSequenceAreaResult2.COMPLETE;
+					result = MapSequenceAreaResult.COMPLETE;
 				}
 				else {
-					this.changeCycleMode(MapSequenceAreaMode2.MOVING);
+					this.changeCycleMode(MapSequenceAreaMode.MOVING);
 				}
 			}
 		}
 		else if (isCancel) {
 			this._doCancelAction();
-			result = MapSequenceAreaResult2.CANCEL;
+			result = MapSequenceAreaResult.CANCEL;
 		}
 		
 		return result;
 	},
 	
 	_moveMoving: function() {
-		var result = MapSequenceAreaResult2.NONE;
+		var result = MapSequenceAreaResult.NONE;
 		
 		if (this._simulateMove.moveUnit() !== MoveResult.CONTINUE) {
-			result = MapSequenceAreaResult2.COMPLETE;
+			result = MapSequenceAreaResult.COMPLETE;
 		}
 		
 		return result;
@@ -661,7 +663,7 @@ var MapSequenceArea2 = defineObject(BaseObject,
 		}
 		
 		// The player who doesn't wait allows moving.
-		return this._targetUnit.getUnitType() === UnitType.ENEMY && !this._targetUnit.isWait();
+		return this._targetUnit.getUnitType() === UnitType.PLAYER && !this._targetUnit.isWait();
 	},
 	
 	_isPlaceSelectable: function() {
@@ -675,8 +677,6 @@ var MapSequenceArea2 = defineObject(BaseObject,
 	},
 	
 	_startMove: function() {
-		SimulateMove.oriX = this._targetUnit.getMapX();
-		SimulateMove.oriY = this._targetUnit.getMapY();
 		var cource;
 		var x = this._mapCursor.getX();
 		var y = this._mapCursor.getY();
@@ -724,18 +724,18 @@ var MapSequenceArea2 = defineObject(BaseObject,
 }
 );
 
-var MapSequenceCommandMode2 = {
+var MapSequenceCommandMode = {
 	COMMAND: 0,
 	FLOW: 1
 };
 
-var MapSequenceCommandResult2 = {
+var MapSequenceCommandResult = {
 	COMPLETE: 0,
 	CANCEL: 1,
 	NONE: 2
 };
 
-var MapSequenceCommand2 = defineObject(BaseObject,
+var MapSequenceCommand = defineObject(BaseObject,
 {
 	_parentTurnObject: null,
 	_targetUnit: null,
@@ -749,12 +749,12 @@ var MapSequenceCommand2 = defineObject(BaseObject,
 	
 	moveSequence: function() {
 		var mode = this.getCycleMode();
-		var result = MapSequenceCommandResult2.NONE;
+		var result = MapSequenceCommandResult.NONE;
 		
-		if (mode === MapSequenceCommandMode2.COMMAND) {
+		if (mode === MapSequenceCommandMode.COMMAND) {
 			result = this._moveCommand();
 		}
-		else if (mode === MapSequenceCommandMode2.FLOW) {
+		else if (mode === MapSequenceCommandMode.FLOW) {
 			result = this._moveFlow();
 		}
 		
@@ -764,10 +764,10 @@ var MapSequenceCommand2 = defineObject(BaseObject,
 	drawSequence: function() {
 		var mode = this.getCycleMode();
 		
-		if (mode === MapSequenceCommandMode2.COMMAND) {
+		if (mode === MapSequenceCommandMode.COMMAND) {
 			this._unitCommandManager.drawListCommandManager();
 		}
-		else if (mode === MapSequenceCommandMode2.FLOW) {
+		else if (mode === MapSequenceCommandMode.FLOW) {
 			this._straightFlow.drawStraightFlow();
 		}
 	},
@@ -793,7 +793,7 @@ var MapSequenceCommand2 = defineObject(BaseObject,
 		this._unitCommandManager.setListCommandUnit(this._targetUnit);
 		this._unitCommandManager.openListCommandManager();
 		
-		this.changeCycleMode(MapSequenceCommandMode2.COMMAND);
+		this.changeCycleMode(MapSequenceCommandMode.COMMAND);
 	},
 	
 	_moveCommand: function() {
@@ -803,34 +803,34 @@ var MapSequenceCommand2 = defineObject(BaseObject,
 			result = this._doLastAction();
 			if (result === 0) {
 				this._straightFlow.enterStraightFlow();
-				this.changeCycleMode(MapSequenceCommandMode2.FLOW);
+				this.changeCycleMode(MapSequenceCommandMode.FLOW);
 			}
 			else if (result === 1) {
-				return MapSequenceCommandResult2.COMPLETE;
+				return MapSequenceCommandResult.COMPLETE;
 			}
 			else {
 				this._targetUnit.setMostResentMov(0);
-				return MapSequenceCommandResult2.CANCEL;
+				return MapSequenceCommandResult.CANCEL;
 			}
 		}
 		
-		return MapSequenceCommandResult2.NONE;
+		return MapSequenceCommandResult.NONE;
 	},
 	
 	_moveFlow: function() {
 		if (this._straightFlow.moveStraightFlow() !== MoveResult.CONTINUE) {
 			// Prevent the range left over if move again and auto turn end are enabled.
 			this._parentTurnObject.clearPanelRange();
-			return MapSequenceCommandResult2.COMPLETE;
+			return MapSequenceCommandResult.COMPLETE;
 		}
 		
-		return MapSequenceCommandResult2.NONE;
+		return MapSequenceCommandResult.NONE;
 	},
 	
 	_doLastAction: function() {
 		var i;
 		var unit = null;
-		var list = FactionControl.getPlayer2List();
+		var list = PlayerList.getSortieList();
 		var count = list.getCount();
 		
 		// Check it because the unit may not exist by executing a command.
@@ -891,10 +891,10 @@ var RepeatMoveFlowEntry = defineObject(BaseFlowEntry,
 	moveFlowEntry: function() {
 		var result = this._mapSequenceArea.moveSequence();
 		
-		if (result === MapSequenceAreaResult2.COMPLETE) {
+		if (result === MapSequenceAreaResult.COMPLETE) {
 			return MoveResult.END;
 		}
-		else if (result === MapSequenceAreaResult2.CANCEL) {
+		else if (result === MapSequenceAreaResult.CANCEL) {
 			return MoveResult.END;
 		}
 		
@@ -984,16 +984,6 @@ var UnitWaitFlowEntry = defineObject(BaseFlowEntry,
 		if (!Miscellaneous.isPlayerFreeAction(unit)) {
 			unit.setWait(true);
 		}
-
-		var eventPlace = PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, SimulateMove.oriX,SimulateMove.oriY);
-		if(eventPlace!=null && (unit.getMapX() != SimulateMove.oriX || unit.getMapY() != SimulateMove.oriY)){
-				mhp = eventPlace.custom.mhp;
-				Eval.setHp(SimulateMove.oriX, SimulateMove.oriY, mhp)
-				root.log("Reset")
-			}
-		else
-			root.log("Null")
-
 		
 		// Get a wait place event from the unit current position.
 		event = this._getWaitEvent(unit);

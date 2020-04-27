@@ -1,7 +1,8 @@
 
 var DummyTurnMode = {
-	WAIT: 0,
-	PROCEED: 1
+	BOUNCEONE: 0,
+	BOUNCETWO: 1,
+	PROCEED: 2
 };
 var DummyTurn = defineObject(BaseTurn,
 {
@@ -25,24 +26,28 @@ var DummyTurn = defineObject(BaseTurn,
 	openTurnCycle: function() {
 		//this._prepareTurnMemberData();
 		//this._completeTurnMemberData();
-		this._http = createObject(StatusChecker);
-		this._http.createHTTPObject();
-		this.changeCycleMode(DummyTurnMode.WAIT);
+		this.changeCycleMode(DummyTurnMode.BOUNCEONE);
 	},
 	
 	moveTurnCycle: function() {
 		var mode = this.getCycleMode();
 		var result = MoveResult.CONTINUE;
 		
-		if (mode === DummyTurnMode.WAIT) {
-			if(!this._http.getStatus()){
-				wait(200);
-				return MoveResult.CONTINUE;	}
-			else {
-				this.changeCycleMode(DummyTurnMode.PROCEED);
-				return MoveResult.END;
-			}
+		if (mode === DummyTurnMode.BOUNCEONE) {
+			
+			result = MoveResult.CONTINUE;
 		}
+
+		if (mode === DummyTurnMode.BOUNCETWO) {
+			
+			result = MoveResult.CONTINUE;
+		}
+
+		if (mode === DummyTurnMode.PROCEED) {
+			
+			TurnControl.turnEnd();
+		}
+		
 		
 		
 		return result;
@@ -51,13 +56,31 @@ var DummyTurn = defineObject(BaseTurn,
 
 	drawTurnCycle: function() {
 		var mode = this.getCycleMode();
-		if (mode === DummyTurnMode.WAIT) {
-			this.drawNoticeView(270, 200);		
-			this._http.getStatus();
-			
+		if (mode === DummyTurnMode.BOUNCEONE) {
+			var http = createObject(StatusChecker);
+			var res = http.getStatus();
+			if(res){
+				this.changeCycleMode(DummyTurnMode.PROCEED);
+			}
+			else{
+				root.log("Bounce forth")
+				wait(500);
+				this.changeCycleMode(DummyTurnMode.BOUNCETWO);
+			}
+			this.drawNoticeView(270, 200);			
 		}
-		if (mode === DummyTurnMode.PROCEED) {
-			TurnControl.turnEnd();
+		if (mode === DummyTurnMode.BOUNCETWO) {
+			var http = createObject(StatusChecker);
+			var res = http.getStatus();
+			if(res){
+				this.changeCycleMode(DummyTurnMode.PROCEED);
+			}
+			else{
+				root.log("Bounce back")
+				wait(500);
+				this.changeCycleMode(DummyTurnMode.BOUNCEONE);
+			}
+			this.drawNoticeView(270, 200);			
 		}
 
 	},
@@ -88,26 +111,23 @@ var DummyTurn = defineObject(BaseTurn,
 
 
 
-StatusChecker = defineObject(BaseObject, {
+var StatusChecker = defineObject(BaseObject, {
 	_http: null,
 
 	getStatus: function() {
-		
-		this._http.open('GET', "http://localhost:8080/SRPGStudioServer/rest/connect/checkStatus", false);
+		this.createHTTPObject();
+		this._http.open('POST', "http://localhost:8080/SRPGStudioServer/rest/connect/checkStatus", false);
 		this._http.send();
 
 		if(this._http.readyState == 4){
 			var result = this._http.responseText;
 			root.log("Current Turn:" + this._http.responseText)
-			if(result == root.getMetaSession().global.playerID) 
+			if(result == root.getMetaSession().getVariableTable(4).getVariable(0)) 
 			{
-					
-					this._http.abort();
 					return true;
 				}	
 
 			}
-		this._http.abort();
 		return false;
 	},
 
