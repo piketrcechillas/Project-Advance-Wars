@@ -73,12 +73,7 @@ BaseTurnLogoFlowEntry._isTurnGraphicsDisplayable = function() {
 			count = AllyList.getAliveList().getCount();
 		}
 		
-		return count > 0;
-	}
-
-TurnChangeEnd.doLastAction = function() {
-	
-	this._startNextTurn();
+		return true;
 	}
 
 
@@ -103,33 +98,13 @@ TurnChangeEnd._startNextTurn = function() {
 	}
 	else {
 		if (turnType === TurnType.PLAYER) {
-			
-
-			var session = root.getMetaSession();
-			var income = session.getVariableTable(1).getVariable(1);
-			var pastGold = session.getVariableTable(0).getVariable(1);
-
-			root.log("Income: " + income);
-
-			session.setGold(pastGold + income);
-
-			
-
 			nextTurnType = TurnType.PLAYER2;
 
 			}
 		else if (turnType === TurnType.PLAYER2) {
 
 
-			var session = root.getMetaSession();
-			var income = session.getVariableTable(1).getVariable(0);
-			var pastGold = session.getVariableTable(0).getVariable(0);
-
-			root.log("Income: " + income);
-
-			session.setGold(pastGold + income);
 			
-			nextTurnType = TurnType.PLAYER;
 		}
 	}
 
@@ -352,17 +327,23 @@ var StatusChecker = defineObject(BaseObject, {
 			if(result == root.getMetaSession().getVariableTable(4).getVariable(0)) 
 			{		
 					this._http.abort();
+					this.destroyHTTPObject();
 					return true;
 				}	
 
 			}
 		this._http.abort();
+		this.destroyHTTPObject();
 		return false;
 	},
 
 
 	createHTTPObject: function() {
 		this._http = new ActiveXObject("Msxml2.XMLHTTP.6.0");
+	},
+
+	destroyHTTPObject: function() {
+		delete this._http;
 	}
 
 })
@@ -372,10 +353,21 @@ MapCommand.TurnEnd.openCommand = function() {
 
 
 		root.getLoadSaveManager().saveInterruptionFile(SceneType.FREE, root.getCurrentSession().getCurrentMapInfo().getId(), LoadSaveScreen._getCustomObject());
-		Upload();
-		root.log("Uploaded")
+		if(root.getCurrentSession().getCurrentMapInfo().custom.online){
+			root.resetConsole();
+			Upload();
+			root.log("Uploaded")}
+
 		if (root.getBaseScene() === SceneType.FREE) {
 			this._saveCursor();
 		}
 		TurnControl.turnEnd();
 	}
+
+function wait(ms)
+{
+	var d = new Date();
+	var d2 = null;
+	do { d2 = new Date(); }
+	while(d2-d < ms);
+}

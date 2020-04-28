@@ -174,6 +174,7 @@ var MultiplayerJoinFlowEntry = defineObject(BaseFlowEntry,
 			if(http.readyState == 4){
     			root.log(http.responseText)
     			this._activate = http.responseText;
+    			delete http;
     		}      
     		root.log("Current status: " + this._activate)
     		if(this._activate == "Success"){

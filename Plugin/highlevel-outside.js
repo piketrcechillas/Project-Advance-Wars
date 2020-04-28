@@ -210,39 +210,8 @@ OutSideParts.BlueGold = defineObject(BaseOutSideParts,
 		if(root.getCurrentSession().getTurnType() == TurnType.PLAYER2)
 			return root.getMetaSession().getVariableTable(0).getVariable(0);
 		if(root.getCurrentSession().getTurnType() == TurnType.PLAYER){
-			var immGold = root.getMetaSession().getVariableTable(2).getVariable(0);
-			if(root.getMetaSession().getGold() > immGold){
-				this.frame = root.getMetaSession().getGold() - immGold;
-				while(this.frame > 0){
-					this.frame--;
-					root.getMetaSession().getVariableTable(2).setVariable(0, immGold+9);
-					immGold = root.getMetaSession().getVariableTable(2).getVariable(0);
-					if(immGold > root.getMetaSession().getGold()){
-						root.getMetaSession().getVariableTable(2).setVariable(0, root.getMetaSession().getGold());
-						return root.getMetaSession().getGold();
-					}
-					else
-						return immGold+9;
-				}
-			}
-
-			if(root.getMetaSession().getGold() < immGold){
-				this.frame = immGold - root.getMetaSession().getGold();
-				while(this.frame > 0){
-					this.frame--;
-					root.getMetaSession().getVariableTable(2).setVariable(0, immGold-9);
-					immGold = root.getMetaSession().getVariableTable(2).getVariable(0);
-					if(immGold < root.getMetaSession().getGold()){
-						root.getMetaSession().getVariableTable(2).setVariable(0, root.getMetaSession().getGold());
-						return root.getMetaSession().getGold();
-					}
-					else
-						return immGold-9;
-				}
-			}
-
 			return root.getMetaSession().getGold();
-		}
+			}
 	},
 	
 	_getPos: function() {
@@ -268,37 +237,9 @@ OutSideParts.BlueBonus = defineObject(BaseOutSideParts,
 		if(root.getCurrentSession().getTurnType() == TurnType.PLAYER2)
 			return root.getMetaSession().getVariableTable(1).getVariable(0);
 		if(root.getCurrentSession().getTurnType() == TurnType.PLAYER){
-			var immIncome =  root.getMetaSession().getVariableTable(2).getVariable(2);
-			if(immIncome > root.getMetaSession().getVariableTable(1).getVariable(0)){
-				this.frame = immIncome - root.getMetaSession().getVariableTable(1).getVariable(0);
-				while(this.frame > 0){
-					this.frame--;
-					root.getMetaSession().getVariableTable(2).setVariable(2, immIncome-3);
-					immIncome = root.getMetaSession().getVariableTable(2).getVariable(2);
-					if(immIncome < root.getMetaSession().getVariableTable(1).getVariable(0)){
-						root.getMetaSession().getVariableTable(2).setVariable(2, root.getMetaSession().getVariableTable(1).getVariable(0));
-						return root.getMetaSession().getVariableTable(1).getVariable(0);
-					}
-					else
-						return immIncome-3;
-					}
-		}
-		if(immIncome < root.getMetaSession().getVariableTable(1).getVariable(0)){
-				this.frame = root.getMetaSession().getVariableTable(1).getVariable(0) - immIncome;
-				while(this.frame > 0){
-					this.frame--;
-					root.getMetaSession().getVariableTable(2).setVariable(2, immIncome+3);
-					immIncome = root.getMetaSession().getVariableTable(2).getVariable(2);
-					if(immIncome > root.getMetaSession().getVariableTable(1).getVariable(0)){
-						root.getMetaSession().getVariableTable(2).setVariable(2, root.getMetaSession().getVariableTable(1).getVariable(0));
-					return root.getMetaSession().getVariableTable(1).getVariable(0);
-					}
-					else
-						return immIncome+3;
-					}
-				}
 			return root.getMetaSession().getVariableTable(1).getVariable(0);
 		}
+
 	},
 	
 	_getPos: function() {
@@ -324,39 +265,8 @@ OutSideParts.RedGold = defineObject(BaseOutSideParts,
 		if(root.getCurrentSession().getTurnType() == TurnType.PLAYER)
 			return root.getMetaSession().getVariableTable(0).getVariable(1);
 		if(root.getCurrentSession().getTurnType() == TurnType.PLAYER2){
-			var immGold = root.getMetaSession().getVariableTable(2).getVariable(1);
-			if(root.getMetaSession().getGold() > immGold){
-				this.frame = root.getMetaSession().getGold() - immGold;
-				while(this.frame > 0){
-					this.frame--;
-					root.getMetaSession().getVariableTable(2).setVariable(1, immGold+9);
-					immGold = root.getMetaSession().getVariableTable(2).getVariable(1);
-					if(immGold > root.getMetaSession().getGold()){
-						root.getMetaSession().getVariableTable(2).setVariable(1, root.getMetaSession().getGold());
-						return root.getMetaSession().getGold();
-					}
-					else
-						return immGold+9;
-				}
-			}
-
-			if(root.getMetaSession().getGold() < immGold){
-				this.frame = immGold - root.getMetaSession().getGold();
-				while(this.frame > 0){
-					this.frame--;
-					root.getMetaSession().getVariableTable(2).setVariable(1, immGold-9);
-					immGold = root.getMetaSession().getVariableTable(2).getVariable(1);
-					if(immGold < root.getMetaSession().getGold()){
-						root.getMetaSession().getVariableTable(2).setVariable(1, root.getMetaSession().getGold());
-						return root.getMetaSession().getGold();
-					}
-					else
-						return immGold-9;
-				}
-			}
-
 			return root.getMetaSession().getGold();
-		}
+			}
 	},
 	
 	_getPos: function() {

@@ -27,11 +27,20 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	
 	// It's called if the turn is switched.
 	openTurnCycle: function() {
-		if(root.getMetaSession().getVariableTable(4).getVariable(0)==1){
+		if(root.getCurrentSession().getCurrentMapInfo().custom.online){
+			if(root.getMetaSession().getVariableTable(4).getVariable(0)==1){
+				this._prepareTurnMemberData();
+				this._completeTurnMemberData();
+				}
+			else{
+				this.changeCycleMode(PlayerTurnMode.BOUNCEONE);
+			}
+		}
+		else
+		{		
 			this._prepareTurnMemberData();
-			this._completeTurnMemberData();}
-		else{
-			this.changeCycleMode(PlayerTurn2Mode.BOUNCEONE);
+			this._completeTurnMemberData();
+
 		}
 	},
 	
@@ -64,14 +73,15 @@ var PlayerTurn2 = defineObject(BaseTurn,
 
 		else if (mode === PlayerTurn2Mode.BOUNCEONE) {
 			
-			result = MoveResult.CONTINUE;
+			result = this.validationOne();;
 		}
 
-		else if (mode === PlayerTurn2Mode.BOUNCETWO) {
+
+		else if (mode === PlayerTurn2Mode.PROCEED) {
 			
-			result = MoveResult.CONTINUE;
+			result = this.proceed();
 		}
-
+		
 		
 		if (this._checkAutoTurnEnd()) {
 			return MoveResult.CONTINUE;
@@ -102,41 +112,13 @@ var PlayerTurn2 = defineObject(BaseTurn,
 			this._drawUnitCommand();
 		}
 		else if (mode === PlayerTurn2Mode.BOUNCEONE) {
-			var http = createObject(StatusChecker);
-			var res = http.getStatus();
-			root.log(res);
-			if(res){
-				this.changeCycleMode(PlayerTurn2Mode.PROCEED);
-			}
-			else{
-				root.log("Bounce forth")
-				this.changeCycleMode(PlayerTurn2Mode.BOUNCETWO);
-			}
-			this.drawNoticeView(270, 200);			
-		}
-		else if (mode === PlayerTurn2Mode.BOUNCETWO) {
-			var http = createObject(StatusChecker);
-			var res = http.getStatus();
-			if(res){
-				this.changeCycleMode(PlayerTurn2Mode.PROCEED);
-			}
-			else{
-				root.log("Bounce back")
-				this.changeCycleMode(PlayerTurn2Mode.BOUNCEONE);
-			}
+
 			this.drawNoticeView(270, 200);			
 		}
 
+		
 
-		else if (mode === PlayerTurn2Mode.PROCEED) {
-			Download();
-			root.log("Downloaded")
-			root.getLoadSaveManager().loadInterruptionFile();
-			root.getMetaSession().getVariableTable(4).setVariable(0, 0);
-			root.log("Player Side: " + root.getMetaSession().getVariableTable(4).getVariable(0));
-			root.getCurrentSession().setTurnType(TurnType.PLAYER2)
-			TurnControl.turnEnd();
-		}
+
 	},
 	
 	drawNoticeView: function(x, y) {
@@ -159,6 +141,32 @@ var PlayerTurn2 = defineObject(BaseTurn,
 		TextRenderer.drawKeywordText(x, y, text, -1, infoColor, font);
 	},
 
+	validationOne: function() {
+		var http = createObject(StatusChecker);
+		var res = http.getStatus();
+		if(res){
+			this.changeCycleMode(PlayerTurnMode.PROCEED);
+		}
+
+
+		return MoveResult.CONTINUE;
+
+	},
+
+	proceed: function() {
+		root.resetConsole();
+		Download();
+		wait(200)
+			root.log("Downloaded")
+			root.getLoadSaveManager().loadInterruptionFile();
+			root.getMetaSession().getVariableTable(4).setVariable(0, 0);
+			root.log("Player Side: " + root.getMetaSession().getVariableTable(4).getVariable(0));
+			root.getCurrentSession().setTurnType(TurnType.PLAYER2)
+			TurnControl.turnEnd();
+
+		return MoveResult.CONTINUE;
+
+	},
 	
 	isPlayerActioned: function() {
 		return this._isPlayerActioned;
@@ -392,10 +400,6 @@ var PlayerTurn2 = defineObject(BaseTurn,
 		}
 		
 		// Even if the auto turn is not enabled, if no alive exists, end the turn.
-		if (count === 0) {
-			TurnControl.turnEnd();
-			return true;
-		}
 		
 		if (!EnvironmentControl.isAutoTurnEnd()) {
 			return false;

@@ -10,7 +10,7 @@ TitleCommand.UploadFile = defineObject(BaseTitleCommand,
 		//root.log(binData);
 		//stream.SaveToFile("D:/save02.sav", 2)
 		stream.Close()
-
+		stream = null;
 		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
 		http.open('POST', "https://srpgstudioserver.azurewebsites.net/rest/connect/savefile", false);
 		http.send(binData);
@@ -20,6 +20,7 @@ TitleCommand.UploadFile = defineObject(BaseTitleCommand,
 			root.log("Response code: " + http.status);
 			root.log(http.responseText)	
     	}
+    	http = null;
 	},
 	
 	getCommandName: function() {
@@ -60,8 +61,12 @@ TitleCommand.DownloadFile = defineObject(BaseTitleCommand,
 			stream.Write(data);
 			stream.SaveToFile("save/save01.sav", 2)
 			stream.Close();
+
 			//TitleCommand.Continue.isSelectable()
 		}
+
+		stream = null;
+		http = null;
 	},
 	
 	getCommandName: function() {
@@ -110,7 +115,8 @@ Upload = function() {
 		stream.LoadFromFile("save/interruption.sav")
 		var binData = stream.Read();
 		//root.log(binData);
-		//stream.SaveToFile("D:/save02.sav", 2)
+		//stream.SaveToFile("D:/save02.sav", 2stream.Flush();)
+		stream.Flush();
 		stream.Close()
 
 		var http = new ActiveXObject("Msxml2.XMLHTTP.6.0")
@@ -123,6 +129,9 @@ Upload = function() {
 			root.log(http.responseText)	
 			http.abort();
     	}
+
+    	delete stream;
+		delete http;
 }
 
 Download = function() {
@@ -138,13 +147,16 @@ Download = function() {
 		if(http.readyState == 4){
 			stream.Open();
 			root.log("Response code: " + http.status);
-			root.log(http.responseBody)	
 			//stream.Write(binData);
 			data = http.responseBody;
 			stream.Write(data);
 			stream.SaveToFile("save/interruption.sav", 2)
+			stream.Flush();
 			stream.Close();
 			//TitleCommand.Continue.isSelectable()
 			http.abort();
 		}
+
+		delete stream;
+		delete http;
 }

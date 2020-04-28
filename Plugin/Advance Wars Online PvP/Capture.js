@@ -69,8 +69,8 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 		root.log("posHP: " + hp)
 
 		if(unit.getUnitType() == UnitType.PLAYER && CaptureControl.getHouseType(terrain) == HouseType.NEUTRAL){
-			var difference = hp - unit.getHp();
-			if(difference<=0){
+			hp = hp - unit.getHp();
+			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handlePlayer);
 				table.setVariable(0, playerIncome+small)
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
@@ -134,7 +134,7 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleFullEnemy);
-				table.setVariable(0, playerIncome+big)
+				table.setVariable(1, enemyIncome+big)
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
 			}
 			else{
@@ -165,18 +165,6 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			}
 		}
 
-
-
-		if(unit.getUnitType() == UnitType.ENEMY && CaptureControl.getHouseType(terrain) == HouseType.BLUE_NEUTRAL){
-			hp -= unit.getHp();
-			if(hp<=0){
-				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleFullEnemy);
-				table.setVariable(0, enemyIncome+big)
-			}
-			else{
-				Eval.setHp(unit.getMapX(), unit.getMapY(), hp)
-			}
-		}
 
 		if(unit.getUnitType() == UnitType.ENEMY && CaptureControl.getHouseType(terrain) == HouseType.FULL_PLAYER){
 			hp -= unit.getHp();
