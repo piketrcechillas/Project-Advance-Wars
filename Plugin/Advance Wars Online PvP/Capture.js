@@ -158,7 +158,7 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 		if(unit.getUnitType() == UnitType.PLAYER && CaptureControl.getHouseType(terrain) == HouseType.RED_CASTLE){
 			hp -= unit.getHp();
 			if(hp<=0){
-				var table = root.getMetaSession().getVariableTable(3).setVariable(0, 1)
+				root.getMetaSession().getVariableTable(3).setVariable(0, 1)
 			}
 			else{
 				Eval.setHp(unit.getMapX(), unit.getMapY(), hp)
@@ -185,7 +185,8 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 		if(unit.getUnitType() == UnitType.ENEMY && CaptureControl.getHouseType(terrain) == HouseType.BLUE_CASTLE){
 			hp -= unit.getHp();
 			if(hp<=0){
-				var table = root.getMetaSession().getVariableTable(3).setVariable(1, 1)
+				root.log("Captured")
+				root.getMetaSession().getVariableTable(3).setVariable(1, 1)
 			}
 			else{
 				Eval.setHp(unit.getMapX(), unit.getMapY(), hp)

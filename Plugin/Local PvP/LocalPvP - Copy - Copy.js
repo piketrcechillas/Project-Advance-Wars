@@ -351,10 +351,9 @@ var StatusChecker = defineObject(BaseObject, {
 
 MapCommand.TurnEnd.openCommand = function() {
 
-
+		//MapLayer.saveHp();
 		root.getLoadSaveManager().saveInterruptionFile(SceneType.FREE, root.getCurrentSession().getCurrentMapInfo().getId(), LoadSaveScreen._getCustomObject());
 		if(root.getCurrentSession().getCurrentMapInfo().custom.online){
-			root.resetConsole();
 			Upload();
 			root.log("Uploaded")}
 

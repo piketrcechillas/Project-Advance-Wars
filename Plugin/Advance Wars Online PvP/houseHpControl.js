@@ -115,9 +115,10 @@ var Eval = {
 }
 
 MapLayer.prepareMapLayer = function() {
+		this._createArrayIndex();
 		this._counter = createObject(UnitCounter);
 		this._unitRangePanel = createObject(UnitRangePanel);
-		this._createArrayIndex();
+
 		this._mapChipLight = createObject(MapChipLight);
 		this._mapChipLight.setLightType(MapLightType.NORMAL);
 		
@@ -127,9 +128,10 @@ MapLayer.prepareMapLayer = function() {
 
 
 MapLayer._arrayIndex = [];
+MapLayer._houseHpArray = [];
 
-MapLayer._createArrayIndex = function() {
-
+MapLayer._createArrayIndex = function() {	
+		if(this._arrayIndex.length == 0) {
 			var width = CurrentMap.getWidth();
 			var height = CurrentMap.getHeight();
 
@@ -144,21 +146,47 @@ MapLayer._createArrayIndex = function() {
 						obj.x=i;
 						obj.y=j;
 						this._arrayIndex.push(obj);
+						var hp =  PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, i, j).custom.hp;
+						this._houseHpArray.push(hp);
 		    		}
 		  		}
 			}
+		}
 }
-
-MapLayer.drawHouseHP = function() {
-	for(i = 0; i < this._arrayIndex.length; i++){
+/*
+MapLayer.saveHp = function() {
+	for(i = 0; i < this._arrayIndex.length; i++) {
 		pos = this._arrayIndex[i];
 		ex = LayoutControl.getPixelX(pos.x);
 		ey = LayoutControl.getPixelY(pos.y);
 		hp =  PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, pos.x, pos.y).custom.hp;
-		mhp = PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, pos.x, pos.y).custom.mhp;
+		this._houseHpArray[i] = hp;
+		root.log("SavedHPList: " + this._houseHpArray[i])
+	}	
+}
+
+MapLayer.loadHp = function() {
+	root.log("House Length: " + this._houseHpArray.length)
+	for(i = 0; i < this._arrayIndex.length; i++) {
+		pos = this._arrayIndex[i];
+		Eval.setHp(pos.x, pos.y, this._houseHpArray[i])
+		root.log("LoadedHPList: " + this._houseHpArray[i])
+
+	}	
+}*/
+
+
+
+MapLayer.drawHouseHP = function() {
+	for(i = 0; i < this._arrayIndex.length; i++) {
+		pos = this._arrayIndex[i];
+		ex = LayoutControl.getPixelX(pos.x);
+		ey = LayoutControl.getPixelY(pos.y);
+		hp = PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, pos.x, pos.y).custom.hp;
 		
 		NumberRenderer.drawNumber(ex, ey, hp);
 	}
+
 }
 
 MapLayer.drawMapLayer = function() {
@@ -177,4 +205,5 @@ MapLayer.drawMapLayer = function() {
 		
 		this._drawColor(EffectRangeType.MAP);
 	}
+
 
