@@ -22,7 +22,7 @@ DamageCalculator.calculateDamage = function(active, passive, weapon, isCritical,
 
 
 
-		damage = Math.floor( (pow*active.getHp()*(200 - (80 + terrain.getDef()*passive.getHp())) / (100*10*10))																				)
+		damage = Math.floor( (pow*active.getHp()*(200 - (120 + terrain.getDef()*passive.getHp())) / (100*10*10))																				)
 
 
 		root.log("Damage: " + damage)

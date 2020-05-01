@@ -525,6 +525,8 @@ var DeployLayoutScreen = defineObject(BaseScreen,
 		_targetUnit.setInvisible(false);
 		_targetUnit.setWait(true);
 
+		FogLight.setFog();
+
 		
 		// Change the contents of window to display gold.
 		this._currencyWindow.startPriceCount(price);

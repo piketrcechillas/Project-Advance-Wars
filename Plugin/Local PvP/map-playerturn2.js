@@ -343,19 +343,31 @@ var PlayerTurn2 = defineObject(BaseTurn,
 	},
 	
 	_moveUnitCommand: function() {
-		var result = this._mapSequenceCommand.moveSequence();
-		
-		if (result === MapSequenceCommandResult2.COMPLETE) {
-			this._mapSequenceCommand.resetCommandManager();
-			MapLayer.getMarkingPanel().updateMarkingPanelFromUnit(this._targetUnit);
-			this._changeEventMode();
-		}
-		else if (result === MapSequenceCommandResult2.CANCEL) {
-			this._mapSequenceCommand.resetCommandManager();
-			this.changeCycleMode(PlayerTurn2Mode.MAP);
-		}
-		
-		return MoveResult.CONTINUE;
+				var result = this._mapSequenceCommand.moveSequence();
+
+			//This part stops the player's movements when it hits an enemy player
+			var stop = root.getMetaSession().global.stop;
+			if (stop!=null && stop) {
+				root.getMetaSession().global.stop = null;
+				this.changeCycleMode(PlayerTurn2Mode.MAP)
+				FogLight.setFog();		
+				return MoveResult.CONTINUE;
+			}
+			
+			if (result === MapSequenceCommandResult2.COMPLETE) {
+				this._mapSequenceCommand.resetCommandManager();
+				MapLayer.getMarkingPanel().updateMarkingPanelFromUnit(this._targetUnit);
+				this._changeEventMode();
+				if (FogLight.isActive()) {			
+					FogLight.setFog();
+				}
+			}
+			else if (result === MapSequenceCommandResult2.CANCEL) {
+				this._mapSequenceCommand.resetCommandManager();
+				this.changeCycleMode(PlayerTurn2Mode.MAP);
+			}
+			
+			return MoveResult.CONTINUE;
 	},
 	
 	_drawAutoCursor: function() {

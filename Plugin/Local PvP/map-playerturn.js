@@ -343,11 +343,23 @@ var PlayerTurn = defineObject(BaseTurn,
 	
 	_moveUnitCommand: function() {
 		var result = this._mapSequenceCommand.moveSequence();
+
+		//This part stops the player's movements when it hits an enemy player
+		var stop = root.getMetaSession().global.stop;
+		if (stop!=null && stop) {
+			root.getMetaSession().global.stop = null;
+			this.changeCycleMode(PlayerTurnMode.MAP)
+			FogLight.setFog();		
+			return MoveResult.CONTINUE;
+		}
 		
 		if (result === MapSequenceCommandResult.COMPLETE) {
 			this._mapSequenceCommand.resetCommandManager();
 			MapLayer.getMarkingPanel().updateMarkingPanelFromUnit(this._targetUnit);
 			this._changeEventMode();
+			if (FogLight.isActive()) {			
+				FogLight.setFog();
+			}
 		}
 		else if (result === MapSequenceCommandResult.CANCEL) {
 			this._mapSequenceCommand.resetCommandManager();

@@ -112,7 +112,15 @@ TurnChangeEnd._startNextTurn = function() {
 	//root.getLoadSaveManager().loadInterruptionFile();
 	root.log(nextTurnType);
 	root.getCurrentSession().setTurnType(nextTurnType);
-	
+
+	if(root.getMetaSession().getVariableTable(4).getVariable(0)==0 && nextTurnType == TurnType.PLAYER2)
+		FogLight.allFog();
+	if(root.getMetaSession().getVariableTable(4).getVariable(0)==0 && nextTurnType == TurnType.PLAYER)
+		FogLight.setFog();
+	if(root.getMetaSession().getVariableTable(4).getVariable(0)==1 && nextTurnType == TurnType.PLAYER2)
+		FogLight.setFog();
+	if(root.getMetaSession().getVariableTable(4).getVariable(0)==1 && nextTurnType == TurnType.PLAYER)
+		FogLight.allFog();
 }
 
 TurnChangeMapStart.doLastAction = function() {
@@ -127,14 +135,19 @@ TurnChangeMapStart.doLastAction = function() {
 
 			session.setGold(pastGold + income);
 			turnType = TurnType.PLAYER;
+			FogLight.setFog();
 
 		}
 		else if (root.getMetaSession().getVariableTable(4).getVariable(0) == 1) {
 			turnType = TurnType.PLAYER;
+			FogLight.allFog();
 		}
 
 		root.getCurrentSession().setTurnCount(0);
 		root.getCurrentSession().setTurnType(turnType);
+
+
+		
 	}
 	
 

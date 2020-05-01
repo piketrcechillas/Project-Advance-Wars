@@ -41,18 +41,22 @@ MapParts.Terrain._drawContent = function(x, y, terrain) {
 		if (terrain.getDef() !== 0) {
 			text = ParamGroup.getParameterName(ParamGroup.getParameterIndexFromType(ParamType.DEF));
 			y += this.getIntervalY();
-			this._drawKeyword(x, y, text, terrain.getDef());
+			this._drawKeyword(x, y, 'Star', terrain.getDef());
+			//root.getGraphicsManager().drawText(x, y, text, length, color, 255, font);
 		}
 		
 		if (terrain.getMdf() !== 0) {
-			text = ParamGroup.getParameterName(ParamGroup.getParameterIndexFromType(ParamType.MDF));
-			y += this.getIntervalY();
-			this._drawKeyword(x, y, text, terrain.getMdf());
+			//text = ParamGroup.getParameterName(ParamGroup.getParameterIndexFromType(ParamType.MDF));
+			//y += this.getIntervalY();
+			//this._drawKeyword(x, y, text, terrain.getMdf());
 		}
 
-		if (terrain.custom.extraRecovery == true) {
+		if (terrain.custom.extraVision == true) {
 			text = ParamGroup.getParameterName(ParamGroup.getParameterIndexFromType(ParamType.MDF));
 			y += this.getIntervalY();
-			this._drawKeyword(x, y, 'Bonus Recovery');
+			//this._drawKeyword(x, y, 'Inf. /H. Inf. Unit');
+			root.getGraphicsManager().drawText(x, y+3, 'Inf. /H. Inf. Unit', length, color, 255, font);
+			y += this.getIntervalY();
+			this._drawKeyword(x, y, 'Vision', 1);
 		}
 	}
