@@ -449,7 +449,7 @@ var FogLight = defineObject(BaseObject, {
 	setFog: function() {  
 		var fogTile;
 		this._fogIndexArray = [];
-		
+		var session = root.getCurrentSession();
 		var turnType = root.getCurrentSession().getTurnType();
 		if(turnType == TurnType.PLAYER)
 			this._setVisibleArrayPlayer();
@@ -457,18 +457,164 @@ var FogLight = defineObject(BaseObject, {
 			this._setVisibleArrayEnemy();
 
 		this.resetUnit(turnType);
+
+		var handleHouse = root.createResourceHandle(false, 0, 0, 0, 0)
+		var handleBigHouse = root.createResourceHandle(false, 3, 0, 0, 0)
+		var handlePlayer = root.createResourceHandle(false, 1, 0, 0, 0)
+		var handleEnemy = root.createResourceHandle(false, 2, 0, 0, 0)
+		var handleHalfPlayer = root.createResourceHandle(false, 4, 0, 0, 0)
+		var handleFullPlayer = root.createResourceHandle(false, 5, 0, 0, 0)
+		var handleHalfEnemy = root.createResourceHandle(false, 6, 0, 0, 0)
+		var handleFullEnemy = root.createResourceHandle(false, 7, 0, 0, 0)
+		var handleBarrack = root.createResourceHandle(false, 12, 0, 0, 0)
+		var handleBlueBarrack = root.createResourceHandle(false, 13, 0, 0, 0)
+		var handleRedBarrack = root.createResourceHandle(false, 14, 0, 0, 0)
+
+
+		for (var i=0; i<CurrentMap.getWidth(); i++) {
+			for (var j=0; j<CurrentMap.getHeight(); j++) {
+
+					var event = PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, i,j);
+					if(event != null) {
+						var index = IndexChecker(i, j);
+						var status = root.getMetaSession().global.houseArray[index];
+						var terrain = PosChecker.getTerrainFromPos(i, j);
+						if(status == "PLAYER" && turnType == TurnType.PLAYER) {
+							if(terrain.getName() == "Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handlePlayer);
+								}
+							if(terrain.getName() == "Big Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleFullPlayer);
+								}
+							if(terrain.getName() == "Neutral Barrack") {
+									session.setMapChipGraphicsHandle(i, j, true, handleBlueBarrack);
+								}
+							}
+
+						if(status == "ENEMY" && turnType == TurnType.PLAYER2) {
+							if(terrain.getName() == "Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleEnemy);
+								}
+							if(terrain.getName() == "Big Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleFullEnemy);
+								}
+							if(terrain.getName() == "Neutral Barrack") {
+									session.setMapChipGraphicsHandle(i, j, true, handleRedBarrack);
+								}
+							}
+						}
+					}
+				}
+
+
 		for (var i=0; i<CurrentMap.getWidth(); i++) {
 			for (var j=0; j<CurrentMap.getHeight(); j++) {
 				this._checkTerrainVision(i,j)
 			}
 		}
+
+		
+
 		for (var i=0; i<CurrentMap.getWidth(); i++) {
 			for (var j=0; j<CurrentMap.getHeight(); j++) {
+
+
+
+				
+
 				
 				fogTile = this._visibleArray==null || (this._visibleArray!=null && !this._visibleArray[i][j])				
 				if (fogTile) {
 					this._fogIndexArray.push(CurrentMap.getIndex(i, j));
-				}	
+
+
+					var event = PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, i,j);
+					if(event != null) {
+							var index = IndexChecker(i, j);
+							var status = root.getMetaSession().global.houseArray[index];
+
+
+
+							if(status == "PLAYER" && turnType == TurnType.PLAYER2 && !event.custom.reveal) {
+								var terrain = PosChecker.getTerrainFromPos(i, j);
+								if(terrain.getName() == "Blue House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleHouse);
+								}
+								if(terrain.getName() == "Big Blue House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleBigHouse);
+								}
+								if(terrain.getName() == "Blue Barrack") {
+									session.setMapChipGraphicsHandle(i, j, true, handleBarrack);
+								}
+							}
+
+							if(status == "ENEMY" && turnType == TurnType.PLAYER && !event.custom.reveal) {
+								var terrain = PosChecker.getTerrainFromPos(i, j);
+								if(terrain.getName() == "Red House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleHouse);
+								}
+								if(terrain.getName() == "Big Red House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleBigHouse);
+								}
+								if(terrain.getName() == "Red Barrack") {
+									session.setMapChipGraphicsHandle(i, j, true, handleBarrack);
+								}
+							}
+					}
+				}	// end If
+				else {
+
+					var event = PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, i,j);
+					if(event != null) {
+						var index = IndexChecker(i, j);
+						var status = root.getMetaSession().global.houseArray[index];
+						var terrain = PosChecker.getTerrainFromPos(i, j);
+
+						if(status == "PLAYER" && turnType == TurnType.PLAYER2) {
+							if(terrain.getName() == "Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handlePlayer);
+									event.custom.reveal = true;
+								}
+							if(terrain.getName() == "Big Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleFullPlayer);
+									event.custom.reveal = true;
+								}
+							if(terrain.getName() == "Neutral Barrack") {
+									session.setMapChipGraphicsHandle(i, j, true, handleBlueBarrack);
+									event.custom.reveal = true;
+								}
+							if(terrain.getName() == "Blue House" || terrain.getName() == "Big Blue House" || terrain.getName() == "Blue Barrack") {
+									event.custom.reveal = true;
+								}
+								
+						}
+
+						if(status == "ENEMY" && turnType == TurnType.PLAYER) {
+							if(terrain.getName() == "Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleEnemy);
+									event.custom.reveal = true;
+								}
+							if(terrain.getName() == "Big Neutral House") {
+									session.setMapChipGraphicsHandle(i, j, true, handleFullEnemy);
+									event.custom.reveal = true;
+								}
+
+							if(terrain.getName() == "Neutral Barrack") {
+									session.setMapChipGraphicsHandle(i, j, true, handleRedBarrack);
+									event.custom.reveal = true;
+								}
+							if(terrain.getName() == "Red House" || terrain.getName() == "Big Red House" || terrain.getName() == "Red Barrack") {
+									event.custom.reveal = true;
+								}
+						}
+
+
+
+						}
+
+				}// endElse
+
+
 
 
 				unit = FogLight.getEnemyUnit(i, j);
@@ -634,18 +780,26 @@ var FogLight = defineObject(BaseObject, {
 	_markUnitVision: function(unitList)  {
 		var unit, x, y, i, x2, y2;
 		var vision;
-
 		for (var h=0; h<unitList.getCount(); h++) {
 			unit = unitList.getData(h);
+			var unitType = unit.getUnitType();
 			x = unit.getMapX()
 			y = unit.getMapY()
 			this._visibleArray[unit.getMapX()][unit.getMapY()] = true;
 			vision = this._getVision(unit);
-			var visionlist = IndexArray.getBestIndexArray(x,y,0,vision)
+			var visionlist = IndexArray.getBestIndexArray(x,y,0,vision);
+
+
 			for (i = 0; i < visionlist.length; i++){
 				x2 = CurrentMap.getX(visionlist[i])
 				y2 = CurrentMap.getY(visionlist[i])
 				this._visibleArray[x2][y2] = true;
+
+				if(!this._isBlockedTerrain(x2, y2, unitType)) {
+					this._visibleArray[x2][y2] = false;
+
+				}
+
 			}
 			// for (var i=-vision; i<=vision; i++) {
 				// for (var j=0; Math.abs(i)+j<=vision; j++) {
@@ -659,27 +813,92 @@ var FogLight = defineObject(BaseObject, {
 			// }
 		}
 	},
+
+	_isBlockedTerrain: function(x, y, unitType) {
+		var terrain = PosChecker.getTerrainFromPos(x, y);
+		var result = true;
+
+		if(terrain != null && terrain.custom.blockVision){
+			var tag = false;
+			var unit0 = PosChecker.getUnitFromPos(x, y);
+			var unit1 = PosChecker.getUnitFromPos(x-1, y);
+			var unit2 = PosChecker.getUnitFromPos(x, y-1);
+			var unit3 = PosChecker.getUnitFromPos(x+1, y);
+			var unit4 = PosChecker.getUnitFromPos(x, y+1);
+
+			if(unit0 != null) {
+				if(unit0.getUnitType() == unitType)
+					tag = true;
+			}
+
+			if(unit1 != null) {
+				if(unit1.getUnitType() == unitType)
+					tag = true;
+			}
+			if(unit2 != null) {
+				if(unit2.getUnitType() == unitType)
+					tag = true;
+			}
+			if(unit3 != null) {
+				if(unit3.getUnitType() == unitType)
+					tag = true;
+			}
+			if(unit4 != null) {
+				if(unit4.getUnitType() == unitType)
+					tag = true;
+			}
+
+			if(!tag) {
+				result = false;
+			}
+		}
+
+		return result;
+	},
 	
 	_checkTerrainVision: function(x, y){
+		var turnType = root.getCurrentSession().getTurnType();
 		var vision, range, x2, y2, a, b;
 		var terrain1 = root.getCurrentSession().getTerrainFromPos(x, y, true);
 		var terrain2 = root.getCurrentSession().getTerrainFromPos(x, y, false);
 		if (terrain1.custom.vision && typeof terrain1.custom.range === 'number'){
 			range = terrain1.custom.range
-			vision = IndexArray.getBestIndexArray(x,y,0,range)
-			for (a = 0; a < vision.length; a++){
-				x2 = CurrentMap.getX(vision[a])
-				y2 = CurrentMap.getY(vision[a])
-				this._visibleArray[x2][y2] = true;
+			if(terrain1.custom.type == "PLAYER" && turnType == TurnType.PLAYER) {
+					vision = IndexArray.getBestIndexArray(x,y,0,range)
+					for (a = 0; a < vision.length; a++){
+						x2 = CurrentMap.getX(vision[a])
+						y2 = CurrentMap.getY(vision[a])
+						this._visibleArray[x2][y2] = true;
+				}
+			}
+
+			if(terrain1.custom.type == "PLAYER2" && turnType == TurnType.PLAYER2) {
+					vision = IndexArray.getBestIndexArray(x,y,0,range)
+					for (a = 0; a < vision.length; a++){
+						x2 = CurrentMap.getX(vision[a])
+						y2 = CurrentMap.getY(vision[a])
+						this._visibleArray[x2][y2] = true;
+				}
 			}
 		}
 		else if (terrain2.custom.vision && typeof terrain2.custom.range === 'number'){
 			range = terrain2.custom.range
-			vision = IndexArray.getBestIndexArray(x,y,0,range)
-			for (a = 0; a < vision.length; a++){
-				x2 = CurrentMap.getX(vision[a])
-				y2 = CurrentMap.getY(vision[a])
-				this._visibleArray[x2][y2] = true;
+			if(terrain2.custom.type = "PLAYER" && turnType == TurnType.PLAYER) {
+					vision = IndexArray.getBestIndexArray(x,y,0,range)
+					for (a = 0; a < vision.length; a++){
+						x2 = CurrentMap.getX(vision[a])
+						y2 = CurrentMap.getY(vision[a])
+						this._visibleArray[x2][y2] = true;
+				}
+			}
+
+			if(terrain2.custom.type = "PLAYER2" && turnType == TurnType.PLAYER2) {
+					vision = IndexArray.getBestIndexArray(x,y,0,range)
+					for (a = 0; a < vision.length; a++){
+						x2 = CurrentMap.getX(vision[a])
+						y2 = CurrentMap.getY(vision[a])
+						this._visibleArray[x2][y2] = true;
+				}
 			}
 		}
 	},

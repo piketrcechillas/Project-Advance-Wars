@@ -40,11 +40,30 @@ function setupOutSideParts()
 }
 
 function configureOutSideParts(groupArray)
-{
-	groupArray.appendObject(OutSideParts.BlueGold);
-	groupArray.appendObject(OutSideParts.BlueBonus);
-	groupArray.appendObject(OutSideParts.RedGold);
-	groupArray.appendObject(OutSideParts.RedBonus);
+{	
+
+	if(root.getCurrentSession().getCurrentMapInfo().custom.online) {
+		if(root.getMetaSession().getVariableTable(4).getVariable(0)==0){
+			groupArray.appendObject(OutSideParts.BlueGold);
+			groupArray.appendObject(OutSideParts.BlueBonus);
+			groupArray.appendObject(OutSideParts.BlueGold);
+			groupArray.appendObject(OutSideParts.BlueBonus);
+															}
+		if(root.getMetaSession().getVariableTable(4).getVariable(0)==1){												
+			groupArray.appendObject(OutSideParts.RedGold);
+			groupArray.appendObject(OutSideParts.RedBonus);
+			groupArray.appendObject(OutSideParts.RedGold);
+			groupArray.appendObject(OutSideParts.RedBonus);
+			}
+		}
+	else {
+		groupArray.appendObject(OutSideParts.BlueGold);
+		groupArray.appendObject(OutSideParts.BlueBonus);
+		groupArray.appendObject(OutSideParts.RedGold);
+		groupArray.appendObject(OutSideParts.RedBonus);
+	}
+
+
 }
 
 function isOutSidePartsVisible()

@@ -8,7 +8,11 @@ var HouseType = {
 	FULL_PLAYER: 6,
 	FULL_ENEMY: 7,
 	BLUE_CASTLE: 8,
-	RED_CASTLE: 9
+	RED_CASTLE: 9,
+
+	NEUTRAL_BARRACK: 10,
+	RED_BARRACK: 11,
+	BLUE_BARRACK: 12
 }
 
 UnitCommand.configureCommands = function(groupArray) {
@@ -46,6 +50,9 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 	},
 	
 	moveCommand: function() {
+
+		var houseArray = root.getMetaSession().global.houseArray;
+
 		var session = root.getCurrentSession();
 		var unit = this.getCommandTarget();
 		var terrain = PosChecker.getTerrainFromPos(unit.getMapX(), unit.getMapY());
@@ -59,6 +66,10 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 		var handleFullPlayer = root.createResourceHandle(false, 5, 0, 0, 0)
 		var handleHalfEnemy = root.createResourceHandle(false, 6, 0, 0, 0)
 		var handleFullEnemy = root.createResourceHandle(false, 7, 0, 0, 0)
+		var handleBarrack = root.createResourceHandle(false, 12, 0, 0, 0)
+		var handleBlueBarrack = root.createResourceHandle(false, 13, 0, 0, 0)
+		var handleRedBarrack = root.createResourceHandle(false, 14, 0, 0, 0)
+
 
 		var table = root.getMetaSession().getVariableTable(1);
 		var playerIncome = table.getVariable(0);
@@ -72,6 +83,17 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp = hp - unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handlePlayer);
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "PLAYER";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = false;
+
+
 				table.setVariable(0, playerIncome+small)
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
 			}
@@ -84,6 +106,17 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handlePlayer);
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "PLAYER";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = true;
+
+
 				table.setVariable(0, playerIncome+small);
 				table.setVariable(1, enemyIncome-small);
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
@@ -97,6 +130,17 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleEnemy);
+
+					var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "ENEMY";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = false;
+
+
 				table.setVariable(1, enemyIncome+small);
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
 			}
@@ -110,6 +154,16 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleEnemy);
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "ENEMY";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = true;
+
 				table.setVariable(1, enemyIncome+small);
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
 			}
@@ -122,6 +176,22 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleFullPlayer);
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.log("Before: " + root.getMetaSession().global.houseArray[index])
+
+				root.getMetaSession().global.houseArray[index] = "PLAYER";
+
+				root.log("After: " + root.getMetaSession().global.houseArray[index])
+
+				root.log("This index: " + index);
+
+					PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = false;
+
+
 				table.setVariable(0, playerIncome+big)
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
 			}
@@ -134,6 +204,17 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleFullEnemy);
+
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "ENEMY";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = false;
+
 				table.setVariable(1, enemyIncome+big)
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
 			}
@@ -146,6 +227,17 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleFullPlayer);
+
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "PLAYER";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = true;
+
 				table.setVariable(0, playerIncome+big)
 				table.setVariable(1, enemyIncome-big);
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
@@ -170,6 +262,17 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			hp -= unit.getHp();
 			if(hp<=0){
 				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleFullEnemy);
+
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "ENEMY";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = true;
+
 				table.setVariable(0, playerIncome-big)
 				table.setVariable(1, enemyIncome+big);
 				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
@@ -193,6 +296,101 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 			}
 		}
 
+		if(unit.getUnitType() == UnitType.PLAYER && CaptureControl.getHouseType(terrain) == HouseType.RED_BARRACK){
+			hp -= unit.getHp();
+			if(hp<=0){
+				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleBlueBarrack);
+
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "PLAYER";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = true;
+
+				table.setVariable(0, playerIncome+big)
+				table.setVariable(1, enemyIncome-big);
+				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
+			}
+			else{
+				Eval.setHp(unit.getMapX(), unit.getMapY(), hp)
+			}
+		}
+
+		if(unit.getUnitType() == UnitType.ENEMY && CaptureControl.getHouseType(terrain) == HouseType.BLUE_BARRACK){
+			hp -= unit.getHp();
+			if(hp<=0){
+				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleRedBarrack);
+
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "ENEMY";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = true;
+
+				table.setVariable(0, playerIncome-big)
+				table.setVariable(1, enemyIncome+big);
+				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
+			
+			}
+			else{
+				Eval.setHp(unit.getMapX(), unit.getMapY(), hp)
+			}
+
+		}
+
+		if(unit.getUnitType() == UnitType.ENEMY && CaptureControl.getHouseType(terrain) == HouseType.NEUTRAL_BARRACK){
+			hp -= unit.getHp();
+			if(hp<=0){
+				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleRedBarrack);
+
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "ENEMY";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = false;
+
+				table.setVariable(1, enemyIncome+big)
+				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
+			}
+			else{
+				Eval.setHp(unit.getMapX(), unit.getMapY(), hp)
+			}
+		}
+
+		if(unit.getUnitType() == UnitType.PLAYER && CaptureControl.getHouseType(terrain) == HouseType.NEUTRAL_BARRACK){
+			hp -= unit.getHp();
+			if(hp<=0){
+				session.setMapChipGraphicsHandle(unit.getMapX(), unit.getMapY(), true, handleBlueBarrack);
+
+
+				var i = unit.getMapX();
+				var j = unit.getMapY();
+
+				var index = IndexChecker(i, j);
+
+				root.getMetaSession().global.houseArray[index] = "ENEMY";
+
+				PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, unit.getMapX(), unit.getMapY()).custom.reveal = false;
+
+				table.setVariable(0, enemyIncome+big)
+				Eval.setHp(unit.getMapX(), unit.getMapY(), mhp)
+			}
+			else{
+				Eval.setHp(unit.getMapX(), unit.getMapY(), hp)
+			}
+		}
 
 
 		this.endCommandAction();
@@ -266,6 +464,22 @@ UnitCommand.Capture = defineObject(UnitListCommand,
 				capturable = true;
 				root.log("Got'em, Player");
 			}
+			if(unit.getUnitType() == UnitType.ENEMY && CaptureControl.getHouseType(terrain) == HouseType.NEUTRAL_BARRACK){
+				capturable = true;
+				root.log("Got'em, Player");
+			}
+			if(unit.getUnitType() == UnitType.PLAYER && CaptureControl.getHouseType(terrain) == HouseType.NEUTRAL_BARRACK){
+				capturable = true;
+				root.log("Got'em, Player");
+			}
+			if(unit.getUnitType() == UnitType.ENEMY && CaptureControl.getHouseType(terrain) == HouseType.BLUE_BARRACK){
+				capturable = true;
+				root.log("Got'em, Player");
+			}
+			if(unit.getUnitType() == UnitType.PLAYER && CaptureControl.getHouseType(terrain) == HouseType.RED_BARRACK){
+				capturable = true;
+				root.log("Got'em, Player");
+			}
 
 		}
 
@@ -316,7 +530,23 @@ var CaptureControl = {
 			return 8;
 		else if(terrain.getName() == "Red Castle")
 			return 9;
+		else if(terrain.getName() == "Neutral Barrack")
+			return 10;
+		else if(terrain.getName() == "Blue Barrack")
+			return 11;
+		else if(terrain.getName() == "Red Barrack")
+			return 12;
 	}
 
 }
 
+IndexChecker = function(x, y) {
+	array = MapLayer._arrayIndex;
+
+	for(i = 0; i < array.length; i++) {
+		var obj = array[i];
+
+		if(obj.x == x && obj.y == y)
+			return i;
+	}
+}

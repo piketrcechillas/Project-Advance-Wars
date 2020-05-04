@@ -505,14 +505,14 @@ var PlayerTurn = defineObject(BaseTurn,
 	_doEventEndAction: function() {
 		// isGameOver was called with this method because need to display a map when the lost at the battle once.
 		// Other than this, also having an intention not to display the terrain window.
-		if (GameOverChecker.isGameOver()) {
-			GameOverChecker.startGameOver();
-		}
-		else {
+		//if (GameOverChecker.isGameOver()) {
+			//GameOverChecker.startGameOver();
+		//}
+		//else {
 			// Countermeasure so as to restart at the script error.
 			// If it's called in func, restart when the turn starts, so it looks like restart.
-			RetryControl.register();
-		}
+		//	RetryControl.register();
+		//}
 	}
 }
 );

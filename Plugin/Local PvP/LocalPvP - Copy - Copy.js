@@ -112,15 +112,20 @@ TurnChangeEnd._startNextTurn = function() {
 	//root.getLoadSaveManager().loadInterruptionFile();
 	root.log(nextTurnType);
 	root.getCurrentSession().setTurnType(nextTurnType);
-
-	if(root.getMetaSession().getVariableTable(4).getVariable(0)==0 && nextTurnType == TurnType.PLAYER2)
-		FogLight.allFog();
-	if(root.getMetaSession().getVariableTable(4).getVariable(0)==0 && nextTurnType == TurnType.PLAYER)
-		FogLight.setFog();
-	if(root.getMetaSession().getVariableTable(4).getVariable(0)==1 && nextTurnType == TurnType.PLAYER2)
-		FogLight.setFog();
-	if(root.getMetaSession().getVariableTable(4).getVariable(0)==1 && nextTurnType == TurnType.PLAYER)
-		FogLight.allFog();
+	if(root.getCurrentSession().getCurrentMapInfo().custom.online) {
+		if(root.getMetaSession().getVariableTable(4).getVariable(0)==0 && nextTurnType == TurnType.PLAYER2)
+			FogLight.allFog();
+		if(root.getMetaSession().getVariableTable(4).getVariable(0)==0 && nextTurnType == TurnType.PLAYER)
+			FogLight.setFog();
+		if(root.getMetaSession().getVariableTable(4).getVariable(0)==1 && nextTurnType == TurnType.PLAYER2)
+			FogLight.setFog();
+		if(root.getMetaSession().getVariableTable(4).getVariable(0)==1 && nextTurnType == TurnType.PLAYER)
+			FogLight.allFog();
+	}
+	else{
+			FogLight.setFog();
+	}
+	
 }
 
 TurnChangeMapStart.doLastAction = function() {

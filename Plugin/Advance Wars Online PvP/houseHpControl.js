@@ -130,6 +130,7 @@ MapLayer.prepareMapLayer = function() {
 MapLayer._arrayIndex = [];
 MapLayer._houseHpArray = [];
 
+
 MapLayer._createArrayIndex = function() {	
 		if(this._arrayIndex.length == 0) {
 			var width = CurrentMap.getWidth();
@@ -146,6 +147,19 @@ MapLayer._createArrayIndex = function() {
 						obj.x=i;
 						obj.y=j;
 						this._arrayIndex.push(obj);
+
+						var terrain = PosChecker.getTerrainFromPos(i, j);
+						if(terrain.getName() == "Blue House" || terrain.getName() == "Big Blue House" || terrain.getName() == "Blue Barrack")
+							{root.getMetaSession().global.houseArray.push("PLAYER");
+								}
+						else if(terrain.getName() == "Red House" || terrain.getName() == "Big Red House" || terrain.getName() == "Red Barrack")
+							{root.getMetaSession().global.houseArray.push("ENEMY");
+								}
+						else
+							{root.getMetaSession().global.houseArray.push("NEUTRAL");
+								}
+
+						
 						var hp =  PosChecker.getPlaceEventFromPos(PlaceEventType.SHOP, i, j).custom.hp;
 						this._houseHpArray.push(hp);
 		    		}

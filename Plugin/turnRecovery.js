@@ -59,4 +59,7 @@ MapParts.Terrain._drawContent = function(x, y, terrain) {
 			y += this.getIntervalY();
 			this._drawKeyword(x, y, 'Vision', 1);
 		}
+
+		
+
 	}

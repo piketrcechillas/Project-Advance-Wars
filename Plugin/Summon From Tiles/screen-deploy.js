@@ -1682,18 +1682,17 @@ MapCommand.Deploy = defineObject(BaseListCommand,
 		var y = session.getMapCursorY();
 		var result = false;
 		var terrain = PosChecker.getTerrainFromPos(x, y);
-		if(CaptureControl.getHouseType(terrain) == HouseType.PLAYER && session.getTurnType() == TurnType.PLAYER)
+		if(CaptureControl.getHouseType(terrain) == HouseType.BLUE_BARRACK && session.getTurnType() == TurnType.PLAYER)
 			result = true;
 		if(CaptureControl.getHouseType(terrain) == HouseType.FULL_PLAYER && session.getTurnType() == TurnType.PLAYER)
 			result = true;
-		if(CaptureControl.getHouseType(terrain) == HouseType.BLUE_CASTLE && session.getTurnType() == TurnType.PLAYER)
-			result = true;
 		if(CaptureControl.getHouseType(terrain) == HouseType.ENEMY && session.getTurnType() == TurnType.PLAYER2)
 			result = true;
-		if(CaptureControl.getHouseType(terrain) == HouseType.FULL_ENEMY && session.getTurnType() == TurnType.PLAYER2)
+		if(CaptureControl.getHouseType(terrain) == HouseType.RED_BARRACK && session.getTurnType() == TurnType.PLAYER2)
 			result = true;
-		if(CaptureControl.getHouseType(terrain) == HouseType.RED_CASTLE && session.getTurnType() == TurnType.PLAYER2)
-			result = true;
+
+
+
 
 		if(PosChecker.getUnitFromPos(x, y) != null)
 			result = false;
