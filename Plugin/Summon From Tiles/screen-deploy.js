@@ -523,11 +523,14 @@ var DeployLayoutScreen = defineObject(BaseScreen,
 		_targetUnit.setMapX(x);
 		_targetUnit.setMapY(y);
 		_targetUnit.setInvisible(false);
+
 		_targetUnit.setWait(true);
 
 		FogLight.setFog();
 
-		
+		if(OT_isEPCustom(_targetUnit) === true){
+			OT_SetNowEP(_targetUnit, _targetUnit.custom.OT_EP.Value);
+			}
 		// Change the contents of window to display gold.
 		this._currencyWindow.startPriceCount(price);
 		
@@ -537,6 +540,7 @@ var DeployLayoutScreen = defineObject(BaseScreen,
 		this._sellItemWindow.updateItemArea();
 		
 		this._playSaleSound();
+
 	},
 	
 	_cutArrayData: function(cutIndex) {
@@ -1686,16 +1690,15 @@ MapCommand.Deploy = defineObject(BaseListCommand,
 			result = true;
 		if(CaptureControl.getHouseType(terrain) == HouseType.FULL_PLAYER && session.getTurnType() == TurnType.PLAYER)
 			result = true;
-		if(CaptureControl.getHouseType(terrain) == HouseType.ENEMY && session.getTurnType() == TurnType.PLAYER2)
+		if(CaptureControl.getHouseType(terrain) == HouseType.FULL_ENEMY && session.getTurnType() == TurnType.PLAYER2)
 			result = true;
 		if(CaptureControl.getHouseType(terrain) == HouseType.RED_BARRACK && session.getTurnType() == TurnType.PLAYER2)
 			result = true;
 
-
-
-
 		if(PosChecker.getUnitFromPos(x, y) != null)
 			result = false;
+
+		root.log("displayable?: " + result)
 		return result;
 	},
 	

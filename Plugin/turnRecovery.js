@@ -33,7 +33,21 @@ MapParts.Terrain._drawContent = function(x, y, terrain) {
 		}
 		
 		x += 2;
-		TextRenderer.drawText(x, y, terrain.getName(), length, color, font);
+
+		var terrainName = terrain.getName();
+
+		if(terrain.getName() == "Neutral House" || terrain.getName() == "Blue House" || terrain.getName() == "Red House")
+			terrainName = "Village";
+		if(terrain.getName() == "Big Neutral House" || terrain.getName() == "Big Blue House" || terrain.getName() == "Big Red House")
+			terrainName = "Aviary"
+		if(terrain.getName() == "Neutral Barrack" || terrain.getName() == "Blue Barrack" || terrain.getName() == "Red Barrack")
+			terrainName = "Barrack";
+		if(terrain.getName() == "Red Castle" || terrain.getName() == "Blue Castle")
+			terrainName = "Headquarter";
+
+
+
+		TextRenderer.drawText(x, y, terrainName, length, color, font);
 		
 		//y += this.getIntervalY();
 		//this._drawKeyword(x, y, root.queryCommand('avoid_capacity'), terrain.getAvoid());

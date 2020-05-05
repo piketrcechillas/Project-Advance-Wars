@@ -19,6 +19,8 @@ UnitCommand.configureCommands = function(groupArray) {
 		this._appendTalkEvent(groupArray);
 		groupArray.appendObject(UnitCommand.Capture);
 		groupArray.appendObject(UnitCommand.Attack);
+		groupArray.appendObject(UnitCommand.Resupply);
+		groupArray.appendObject(UnitCommand.Repair);
 		//groupArray.appendObject(UnitCommand.PlaceCommand);
 		//groupArray.appendObject(UnitCommand.Occupation);
 		//groupArray.appendObject(UnitCommand.Treasure);
@@ -533,9 +535,9 @@ var CaptureControl = {
 		else if(terrain.getName() == "Neutral Barrack")
 			return 10;
 		else if(terrain.getName() == "Blue Barrack")
-			return 11;
-		else if(terrain.getName() == "Red Barrack")
 			return 12;
+		else if(terrain.getName() == "Red Barrack")
+			return 11;
 	}
 
 }
@@ -549,4 +551,22 @@ IndexChecker = function(x, y) {
 		if(obj.x == x && obj.y == y)
 			return i;
 	}
+}
+
+InitiateIncome = function() {
+	var array = root.getMetaSession().global.houseArray;
+	var pCount = 0;
+	var eCount = 0;
+	var table = root.getMetaSession().getVariableTable(1);
+
+	for(i = 0; i < array.length; i++) {
+		if(array[i] == "PLAYER")
+			pCount += 1;
+		if(array[i] == "ENEMY")
+			eCount += 1;
+	}
+
+	table.setVariable(0, 100*pCount);
+	table.setVariable(1, 100*eCount);
+
 }

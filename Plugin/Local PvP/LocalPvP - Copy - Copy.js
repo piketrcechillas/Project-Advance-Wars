@@ -112,6 +112,7 @@ TurnChangeEnd._startNextTurn = function() {
 	//root.getLoadSaveManager().loadInterruptionFile();
 	root.log(nextTurnType);
 	root.getCurrentSession().setTurnType(nextTurnType);
+	
 	if(root.getCurrentSession().getCurrentMapInfo().custom.online) {
 		if(root.getMetaSession().getVariableTable(4).getVariable(0)==0 && nextTurnType == TurnType.PLAYER2)
 			FogLight.allFog();
@@ -150,8 +151,8 @@ TurnChangeMapStart.doLastAction = function() {
 
 		root.getCurrentSession().setTurnCount(0);
 		root.getCurrentSession().setTurnType(turnType);
-
-
+		InitiateIncome();
+		
 		
 	}
 	

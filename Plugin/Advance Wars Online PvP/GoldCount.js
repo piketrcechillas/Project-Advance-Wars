@@ -35,4 +35,5 @@ TurnChangeEnd.doLastAction = function() {
 
 
 	this._startNextTurn();
+
 	}

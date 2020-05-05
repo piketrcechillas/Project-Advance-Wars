@@ -76,6 +76,34 @@ PlayerTurn._moveUnitCommand = function() {
 	return MoveResult.CONTINUE;
 }
 
+PlayerTurn2._moveUnitCommand = function() {
+	var result = this._mapSequenceCommand.moveSequence();
+
+	//This part stops the player's movements when it hits an enemy player
+	var stop = root.getMetaSession().global.stop;
+	if (stop!=null && stop) {
+		root.getMetaSession().global.stop = null;
+		this.changeCycleMode(PlayerTurn2Mode.MAP)
+		FogLight.setFog();		
+		return MoveResult.CONTINUE;
+	}
+	
+	if (result === MapSequenceCommandResult.COMPLETE) {
+		this._mapSequenceCommand.resetCommandManager();
+		MapLayer.getMarkingPanel().updateMarkingPanelFromUnit(this._targetUnit);
+		this._changeEventMode();
+		if (FogLight.isActive()) {			
+			FogLight.setFog();
+		}
+	}
+	else if (result === MapSequenceCommandResult.CANCEL) {
+		this._mapSequenceCommand.resetCommandManager();
+		this.changeCycleMode(PlayerTurn2Mode.MAP);
+	}
+	
+	return MoveResult.CONTINUE;
+}
+
 SimulateMove._currentPos = {
 	x: null,
 	y: null
@@ -86,38 +114,79 @@ SimulateMove._currentPos = {
 var fw05 = SimulateMove.drawUnit;
 SimulateMove.drawUnit = function() {
 	if (FogLight.isActive()) {
-		var chipWidth = GraphicsFormat.MAPCHIP_WIDTH;
-		var chipHeight = GraphicsFormat.MAPCHIP_HEIGHT;
-		var x = Math.round(this._xPixel / chipWidth);
-		var y = Math.round(this._yPixel / chipHeight);
-		
-		var unit = FogLight.getEnemyUnit(x, y)
-		if (this._unit.getUnitType() !== UnitType.ENEMY && unit!=null) {
-			//Player unit founds a enemy unit, must stop and end that unit's turn
-			if (this._currentPos.x!=null && this._currentPos.y!=null) {
-				this._unit.setMapX(this._currentPos.x);
-				this._unit.setMapY(this._currentPos.y);
+		turnType = root.getCurrentSession().getTurnType();
+		if(turnType == TurnType.PLAYER) {
+			var chipWidth = GraphicsFormat.MAPCHIP_WIDTH;
+			var chipHeight = GraphicsFormat.MAPCHIP_HEIGHT;
+			var x = Math.round(this._xPixel / chipWidth);
+			var y = Math.round(this._yPixel / chipHeight);
+			
+			var unit = FogLight.getEnemyUnit(x, y)
+			if (this._unit.getUnitType() !== UnitType.ENEMY && unit!=null) {
+				//Player unit founds a enemy unit, must stop and end that unit's turn
+				if (this._currentPos.x!=null && this._currentPos.y!=null) {
+					this._unit.setMapX(this._currentPos.x);
+					this._unit.setMapY(this._currentPos.y);
+				}
+				this._endMove(this._unit);
+				root.getMetaSession().global.stop = true;
+				this._unit.setWait(true);
 			}
-			this._endMove(this._unit);
-			root.getMetaSession().global.stop = true;
-			this._unit.setWait(true);
-		}
-		else {
-			this._currentPos.x = x;
-			this._currentPos.y = y;
-		}
-		
-		if (FogLight.isUnitVisibleFromPos(this._unit, x, y)) {
-			var unitRenderParam = StructureBuilder.buildUnitRenderParam();
-		
-			if (this._isMoveFinal) {
-				return;
+			else {
+				this._currentPos.x = x;
+				this._currentPos.y = y;
 			}
 			
-			unitRenderParam.direction = this._unit.getDirection();
-			unitRenderParam.animationIndex = this._unitCounter.getAnimationIndexFromUnit(this._unit);
-			unitRenderParam.isScroll = true;
-			UnitRenderer.drawScrollUnit(this._unit, this._xPixel, this._yPixel, unitRenderParam);
+			if (FogLight.isUnitVisibleFromPos(this._unit, x, y)) {
+				var unitRenderParam = StructureBuilder.buildUnitRenderParam();
+			
+				if (this._isMoveFinal) {
+					return;
+				}
+				
+				unitRenderParam.direction = this._unit.getDirection();
+				unitRenderParam.animationIndex = this._unitCounter.getAnimationIndexFromUnit(this._unit);
+				unitRenderParam.isScroll = true;
+				UnitRenderer.drawScrollUnit(this._unit, this._xPixel, this._yPixel, unitRenderParam);
+			}
+
+		}
+
+		if(turnType == TurnType.PLAYER2) {
+			var chipWidth = GraphicsFormat.MAPCHIP_WIDTH;
+			var chipHeight = GraphicsFormat.MAPCHIP_HEIGHT;
+			var x = Math.round(this._xPixel / chipWidth);
+			var y = Math.round(this._yPixel / chipHeight);
+			
+			var unit = FogLight.getEnemyUnit(x, y)
+			if (this._unit.getUnitType() !== UnitType.PLAYER && unit!=null) {
+				//Player unit founds a enemy unit, must stop and end that unit's turn
+				if (this._currentPos.x!=null && this._currentPos.y!=null) {
+					this._unit.setMapX(this._currentPos.x);
+					this._unit.setMapY(this._currentPos.y);
+				}
+				this._endMove(this._unit);
+				root.getMetaSession().global.stop = true;
+				this._unit.setWait(true);
+			}
+			else {
+				this._currentPos.x = x;
+				this._currentPos.y = y;
+			}
+			
+			if (FogLight.isUnitVisibleFromPos(this._unit, x, y)) {
+				var unitRenderParam = StructureBuilder.buildUnitRenderParam();
+			
+				if (this._isMoveFinal) {
+					return;
+				}
+				
+				unitRenderParam.direction = this._unit.getDirection();
+				unitRenderParam.animationIndex = this._unitCounter.getAnimationIndexFromUnit(this._unit);
+				unitRenderParam.isScroll = true;
+				UnitRenderer.drawScrollUnit(this._unit, this._xPixel, this._yPixel, unitRenderParam);
+			}
+
 		}
 	}
 	else {
@@ -217,9 +286,7 @@ EnemyTurn._isOrderAllowed = function(unit) {
 var fw12 = DamageControl.setDeathState;
 DamageControl.setDeathState = function(unit) {
 	fw12.call(this, unit);
-	if (unit.getUnitType() != UnitType.ENEMY && FogLight.isActive()) {
-		FogLight.setFog();
-	}
+			FogLight.setFog();
 }
 
 //Modified so the attacking unit won't be visible after the easy battle
@@ -338,10 +405,6 @@ PlayerTurn._checkAutoTurnEnd = function() {
 	}
 	
 	// Even if the auto turn is not enabled, if no alive exists, end the turn.
-	if (count === 0) {
-		TurnControl.turnEnd();
-		return true;
-	}
 	
 	if (!EnvironmentControl.isAutoTurnEnd()) {
 		return false;
@@ -451,12 +514,15 @@ var FogLight = defineObject(BaseObject, {
 		this._fogIndexArray = [];
 		var session = root.getCurrentSession();
 		var turnType = root.getCurrentSession().getTurnType();
+
+		this.resetUnit(turnType);
+		
 		if(turnType == TurnType.PLAYER)
 			this._setVisibleArrayPlayer();
 		if(turnType == TurnType.PLAYER2)
 			this._setVisibleArrayEnemy();
 
-		this.resetUnit(turnType);
+		
 
 		var handleHouse = root.createResourceHandle(false, 0, 0, 0, 0)
 		var handleBigHouse = root.createResourceHandle(false, 3, 0, 0, 0)
@@ -780,9 +846,13 @@ var FogLight = defineObject(BaseObject, {
 	_markUnitVision: function(unitList)  {
 		var unit, x, y, i, x2, y2;
 		var vision;
+		var turnType = root.getCurrentSession().getTurnType();
+
+
 		for (var h=0; h<unitList.getCount(); h++) {
 			unit = unitList.getData(h);
-			var unitType = unit.getUnitType();
+
+
 			x = unit.getMapX()
 			y = unit.getMapY()
 			this._visibleArray[unit.getMapX()][unit.getMapY()] = true;
@@ -791,13 +861,20 @@ var FogLight = defineObject(BaseObject, {
 
 
 			for (i = 0; i < visionlist.length; i++){
+
 				x2 = CurrentMap.getX(visionlist[i])
 				y2 = CurrentMap.getY(visionlist[i])
 				this._visibleArray[x2][y2] = true;
 
-				if(!this._isBlockedTerrain(x2, y2, unitType)) {
-					this._visibleArray[x2][y2] = false;
+				
 
+			}
+
+			for (i = 0; i < visionlist.length; i++){
+				x2 = CurrentMap.getX(visionlist[i])
+				y2 = CurrentMap.getY(visionlist[i])
+				if(!this._isBlockedTerrain(x2, y2, turnType)) {
+					this._visibleArray[x2][y2] = false;
 				}
 
 			}
@@ -814,9 +891,15 @@ var FogLight = defineObject(BaseObject, {
 		}
 	},
 
-	_isBlockedTerrain: function(x, y, unitType) {
+	_isBlockedTerrain: function(x, y, turnType) {
 		var terrain = PosChecker.getTerrainFromPos(x, y);
 		var result = true;
+		var unitType;
+		if(turnType == TurnType.PLAYER)
+			{unitType = UnitType.PLAYER;}
+		if(turnType == TurnType.PLAYER2)
+			{unitType = UnitType.ENEMY;}
+
 
 		if(terrain != null && terrain.custom.blockVision){
 			var tag = false;
