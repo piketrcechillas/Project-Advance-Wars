@@ -161,9 +161,14 @@ var PlayerTurn2 = defineObject(BaseTurn,
 			root.getLoadSaveManager().loadInterruptionFile();
 			root.getMetaSession().getVariableTable(4).setVariable(0, 0);
 			root.log("Player Side: " + root.getMetaSession().getVariableTable(4).getVariable(0));
+
+
 			//MapLayer.loadHp();
 			root.getCurrentSession().setTurnType(TurnType.PLAYER2)
+
+
 			TurnControl.turnEnd();
+			FuelChecker();
 
 		return MoveResult.CONTINUE;
 

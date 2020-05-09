@@ -161,9 +161,11 @@ var PlayerTurn = defineObject(BaseTurn,
 			root.getLoadSaveManager().loadInterruptionFile();
 			root.getMetaSession().getVariableTable(4).setVariable(0, 1);
 			root.log("Player Side: " + root.getMetaSession().getVariableTable(4).getVariable(0));
+			
 			//MapLayer.loadHp();
 			root.getCurrentSession().setTurnType(TurnType.PLAYER)
 			TurnControl.turnEnd();
+			FuelChecker();
 
 		return MoveResult.CONTINUE;
 
@@ -231,6 +233,7 @@ var PlayerTurn = defineObject(BaseTurn,
 	},
 	
 	_prepareTurnMemberData: function() {
+
 		this._targetUnit = null;
 		this._xCursorSave = 0;
 		this._yCursorSave = 0;
@@ -249,6 +252,7 @@ var PlayerTurn = defineObject(BaseTurn,
 		}
 		
 		this._setDefaultActiveUnit();
+
 	},
 	
 	_completeTurnMemberData: function() {

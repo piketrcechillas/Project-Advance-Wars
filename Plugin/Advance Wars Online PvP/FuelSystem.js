@@ -53,6 +53,8 @@ AW_BuidingEffect = function() {
 			if(classType.getName() != "Flying" && (terrain.getName() == "Blue House" || terrain.getName() == "Blue Castle" || terrain.getName() == "Blue Barrack")) {
 				AW_Replenish(unit);
 			}
+			if(APCAdjacency(unit))
+				AW_Replenish(unit);
 		}
 		if(turnType == TurnType.PLAYER2) {
 			if(classType.getName() == "Flying" && terrain.getName() == "Big Red House"){
@@ -61,9 +63,42 @@ AW_BuidingEffect = function() {
 			if(classType.getName() != "Flying" && (terrain.getName() == "Red House" || terrain.getName() == "Red Castle" || terrain.getName() == "Red Barrack")) {
 				AW_Replenish(unit);
 			}
+			if(APCAdjacency(unit))
+				AW_Replenish(unit);
 		}
 	}
 }
+
+APCAdjacency = function(unit) {
+		var result = false;
+		var x = unit.getMapX();
+		var y = unit.getMapY();
+		var unitType = unit.getUnitType();
+		var unit1 = PosChecker.getUnitFromPos(x-1, y);
+		var unit2 = PosChecker.getUnitFromPos(x, y-1);
+		var unit3 = PosChecker.getUnitFromPos(x+1, y);
+		var unit4 = PosChecker.getUnitFromPos(x, y+1);
+		if(unit1 != null) {
+			if(unit1.getUnitType() == unitType && unit1.getClass().getName() == "APC")
+				result = true;
+			}
+		if(unit2 != null) {
+			if(unit2.getUnitType() == unitType && unit2.getClass().getName() == "APC")
+				result = true;
+			}
+		if(unit3 != null) {
+			if(unit3.getUnitType() == unitType && unit3.getClass().getName() == "APC")
+				result = true;
+			}
+		if(unit4 != null) {
+			if(unit4.getUnitType() == unitType && unit4.getClass().getName() == "APC")
+				result = true;
+			}
+
+		return result;
+}
+
+
 
 UnitCommand.Repair = defineObject(UnitListCommand,
 {

@@ -899,10 +899,6 @@ RecoveryAllFlowEntry._completeMemberData = function(turnChange)
 		OT_RecoveryNowEP(unit, recoveryValue);
 
 
-		if(OT_GetNowEP(unit) == 0 && unit.getClass().getClassType().getName() == "Flying") {
-			unit.setAliveState(AliveType.ERASE);
-		}
-
 		// EPが指定範囲内ならステート付与したい場合
 		if( OT_isEPCustom(unit.getClass()) )
 		{
