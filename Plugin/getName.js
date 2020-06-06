@@ -10,11 +10,8 @@ function getName()
     	Str = Str + OutStream.readAll();
 	}
 
-	var content = root.getEventCommandObject().getOriginalContent();
-	var unit = content.getUnit();
-	var keyword = content.getCustomKeyword();
-
-
-	unit.setName(Str.substring(0, Str.length - 2));
+	text = Str.substring(0, Str.length - 2)
 	root.log(Str.substring(0, Str.length - 2));
+	return text
 }
+
