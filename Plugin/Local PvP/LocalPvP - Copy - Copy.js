@@ -133,7 +133,7 @@ TurnChangeEnd._startNextTurn = function() {
 
 TurnChangeMapStart.doLastAction = function() {
 		var turnType = TurnType.PLAYER;
-		
+		InitiateIncome();
 		if (root.getMetaSession().getVariableTable(4).getVariable(0) == 0) {
 			var session = root.getMetaSession();
 			var income = session.getVariableTable(1).getVariable(0);
@@ -152,10 +152,7 @@ TurnChangeMapStart.doLastAction = function() {
 		}
 
 		root.getCurrentSession().setTurnCount(0);
-		root.getCurrentSession().setTurnType(turnType);
-		InitiateIncome();
-		
-		
+		root.getCurrentSession().setTurnType(turnType);		
 	}
 	
 
