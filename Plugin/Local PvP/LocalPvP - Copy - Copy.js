@@ -388,3 +388,26 @@ function wait(ms)
 	do { d2 = new Date(); }
 	while(d2-d < ms);
 }
+
+TitleCommand.LocalGame = defineObject(BaseTitleCommand,
+{
+	openCommand: function() {
+	},
+	
+	moveCommand: function() {
+		// endGame can be called with openCommand, but it sounds as if the sound effect is interrupted.
+		root.endGame();
+		return MoveResult.END;
+	},
+	
+	isSelectable: function() {
+		return true;
+	},
+
+	getCommandName: function() {
+		return 'Play Local Game';
+	}
+
+}
+);
+

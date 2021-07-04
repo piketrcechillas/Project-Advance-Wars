@@ -92,20 +92,6 @@ var FileUploader = {
 
 }
 
-TitleCommand.Continue.isSelectable = function(){
-    var fso = new ActiveXObject('Scripting.FileSystemObject')
-    var pathing = fso.GetFolder('.\\save')
-    return pathing.Size > 0
-}
-
-TitleCommand.Continue.openCommand = function() {
-    var screenParam = this._createLoadSaveParam();
-    root.getLoadSaveManager().copyFile(99, 99); // <- execute root.getLoadSaveManager() to update. this is meaningless copy.
-    this._loadSaveScreen = createObject(LoadSaveControl.getLoadScreenObject());
-    SceneManager.addScreen(this._loadSaveScreen, screenParam);
-    this._loadSaveScreen._setScrollData(DefineControl.getMaxSaveFileCount(), true);
-};
-
 
 Upload = function() {
 		var id = root.getMetaSession().getVariableTable(4).getVariable(1)

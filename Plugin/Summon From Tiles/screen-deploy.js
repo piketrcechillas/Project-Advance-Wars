@@ -817,8 +817,15 @@ var ShopCurrencyWindow = defineObject(BaseWindow,
 		var font = textui.getFont();
 		var price = this._balancer.getCurrentValue();
 		var text = this.getCurrencySign();
-		
-		TextRenderer.drawKeywordText(x, y, text, -1, color, font);
+
+		var gold = root.getMetaSession().getGold();
+		if(price > gold) {
+			root.log("Through this")
+			root.getGraphicsManager().drawText(x, y +  y + ContentLayout.KEYWORD_HEIGHT, text, length, color, 100, font);
+		}
+		else {
+			TextRenderer.drawKeywordText(x, y, text, -1, color, font);
+		}
 		
 		NumberRenderer.drawNumber(x + 90, y, price);
 	},
